@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập vào Cisco</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #ffffff; font-family: "CiscoSans", Arial, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
+        .cisco-logo { width: 80px; margin-bottom: 50px; }
+        h2 { font-size: 28px; font-weight: 400; color: #333; margin-bottom: 30px; }
+        .form-label { display: flex; font-weight: bold; color: #666; font-size: 14px; margin-bottom: 5px; }
+        .form-control { border: 1px solid #ccc; border-radius: 4px; padding: 12px; margin-bottom: 20px; transition: border-color 0.2s; }
+        .form-control:focus { border-color: #007aa3; box-shadow: 0 0 0 0.2rem rgba(0, 122, 163, 0.25); }
+        .btn-cisco { background-color: #007aa3; color: white; border: none; border-radius: 50px; padding: 12px; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .btn-cisco:hover { background-color: #005f7a; color: white; }
+        .footer-links { margin-top: 30px; font-size: 14px; text-align: left; }
+        .footer-links a { color: #007aa3; text-decoration: none; display: block; margin-bottom: 15px; }
+        .footer-links a:hover { text-decoration: underline; }
+        .register-text { margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px; font-size: 14px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <svg class="cisco-logo" viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 40h4V20h-4v20zm12 5h4V15h-4v30zm12 5h4V10h-4v40zm12 0h4V10h-4v40zm12-5h4V15h-4v30zm12-5h4V20h-4v20z" fill="#00bceb"/>
+        </svg>
+
+        <h2>Đăng nhập</h2>
+
+        <form action="/login" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" required placeholder="Email của bạn">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" name="password" class="form-control" required placeholder="Mật khẩu">
+            </div>
+            <button type="submit" class="btn-cisco">Tiếp</button>
+        </form>
+
+        <div class="footer-links">
+            <a href="#">Mở khóa tài khoản?</a>
+            <a href="#">Trợ giúp</a>
+        </div>
+
+        <div class="register-text">
+            Bạn không có tài khoản? <a href="/register.html" style="color: #007aa3; text-decoration: none;">Đăng ký</a>
+        </div>
+    </div>
+</body>
+</html>

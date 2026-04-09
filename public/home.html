@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Evernote Clone - Pro Version</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --evernote-green: #00a82d; --sidebar-bg: #f8f9fa; }
+        body { background-color: #ffffff; font-family: "Segoe UI", sans-serif; overflow: hidden; }
+        .app-container { display: flex; height: 100vh; }
+        
+        .sidebar { width: 350px; background-color: var(--sidebar-bg); border-right: 1px solid #ececec; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid #ececec; }
+        .btn-green { background: var(--evernote-green); color: white; border: none; border-radius: 20px; padding: 8px 20px; font-weight: bold; transition: 0.2s; }
+        .btn-green:hover { background: #008f26; }
+        
+        .lists-container { flex: 1; overflow-y: auto; padding-bottom: 20px; }
+        .section-header { font-size: 11px; font-weight: bold; color: #888; text-transform: uppercase; padding: 10px 20px; background: #ececec; }
+        
+        .note-item { padding: 10px 15px 10px 10px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: 0.2s; }
+        .note-item:hover { background-color: #e9ecef; }
+        .note-item.active { background-color: #d1e7dd; border-left: 4px solid var(--evernote-green); }
+        .note-title { font-weight: 500; color: #333; display: flex; align-items: center; }
+        
+        .child-note { margin-left: 22px; border-left: 1px solid #ccc; padding-left: 5px; }
+        .toggle-btn { cursor: pointer; color: #555; width: 24px; text-align: center; font-size: 12px; font-weight: bold; display: inline-block; transition: 0.2s; }
+        .toggle-btn:hover { color: var(--evernote-green); transform: scale(1.2); }
+        .btn-more { padding: 0 5px; color: #aaa; font-size: 18px; border: none; background: none; font-weight: bold; margin-left: auto; }
+        .btn-more:hover { color: #333; }
+
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fafafa; color: #999; }
+        .editor-area { flex: 1; display: none; flex-direction: column; }
+        .editor-toolbar { padding: 10px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+        .editor-content { padding: 40px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .input-title { font-size: 28px; border: none; font-weight: bold; outline: none; margin-bottom: 20px; }
+        .input-body { flex: 1; border: none; outline: none; font-size: 16px; line-height: 1.6; }
+        .input-body:empty:before { content: attr(data-placeholder); color: #aaa; }
+        
+        .task-item { display: flex; align-items: flex-start; margin-bottom: 8px; padding: 5px; background: #fcfcfc; border-radius: 4px; border: 1px solid #eee; }
+        .task-item input[type="checkbox"] { width: 18px; height: 18px; margin-right: 12px; margin-top: 3px; cursor: pointer; accent-color: var(--evernote-green); }
+        .task-item span { outline: none; flex: 1; min-height: 24px; color: #222; }
+        .task-item input[type="checkbox"]:checked + span { text-decoration: line-through; color: #aaa; font-style: italic; }
+        
+        .btn-checklist { background: #e0e0e0; color: #333; border: none; border-radius: 5px; padding: 6px 15px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .btn-checklist:hover { background: #d0d0d0; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="dropdown w-100">
+                    <button class="btn btn-light w-100 d-flex justify-content-between align-items-center shadow-sm" data-bs-toggle="dropdown" style="border-radius: 8px; border: 1px solid #ddd;">
+                        <span class="fw-bold text-success text-truncate" id="displayUserName" style="max-width: 200px;">Người dùng</span>
+                        <span>⚙️</span>
+                    </button>
+                    <ul class="dropdown-menu w-100 shadow">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">✏️ Đổi tên hiển thị</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger fw-bold" href="/logout">🚪 Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-3">
+                <button class="btn-green w-100" onclick="openNewNote()">+ Ghi chú mới</button>
+            </div>
+
+            <div class="lists-container">
+                <div class="section-header">💾 Bản nháp (Tại máy)</div>
+                <div id="localNoteList"></div>
+
+                <div class="section-header mt-3">☁️ Ghi chú Cloud</div>
+                <div id="cloudTreeList"></div>
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <h5>Chọn hoặc tạo ghi chú mới</h5>
+        </div>
+
+        <div class="editor-area" id="editorArea">
+            <div class="editor-toolbar">
+                <button class="btn-checklist me-auto" onclick="addCheckbox()">
+                    <input type="checkbox" checked disabled style="width:14px; height:14px; margin:0;"> Thêm To-do
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="deleteNote()">🗑 Xóa</button>
+                <button class="btn btn-secondary btn-sm" id="btnSaveLocal" onclick="saveLocal()">💾 Lưu Nháp</button>
+                <button class="btn-green" id="btnSaveCloud" onclick="saveCloud()">☁️ Lưu Cloud</button>
+            </div>
+            <div class="editor-content">
+                <input type="text" id="noteTitle" class="input-title" placeholder="Tiêu đề...">
+                <div id="noteContent" class="input-body" contenteditable="true" data-placeholder="Nhập nội dung hoặc bấm 'Thêm To-do'..."></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title fw-bold">Cài đặt tài khoản</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <label class="mb-2">Nhập tên mới của bạn:</label>
+                    <input type="text" id="newNameInput" class="form-control mb-3" placeholder="Ví dụ: Cơ Nguyễn">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" onclick="changeName()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="moveModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Di chuyển vào thư mục</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <select id="parentSelect" class="form-select"></select>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="moveToParent(null)">Đưa ra gốc (Không có cha)</button>
+                    <button class="btn btn-primary" onclick="confirmMove()">Di chuyển</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let cloudNotes = [];
+        let localNotes = JSON.parse(localStorage.getItem('localNotesArray')) || [];
+        let currentNoteId = null; let currentNoteType = null; let noteToMove = null;
+        const moveModal = new bootstrap.Modal(document.getElementById('moveModal'));
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            return parts.length === 2 ? decodeURIComponent(parts.pop().split(';').shift()) : "Người dùng";
+        }
+        document.getElementById('displayUserName').innerText = getCookie('userName');
+
+        // Hàm Đổi Tên
+        async function changeName() {
+            const newName = document.getElementById('newNameInput').value;
+            if(!newName) return alert("Vui lòng nhập tên mới!");
+            const userEmail = getCookie('userEmail'); 
+            const res = await fetch('/api/change-name', { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ email: userEmail, newName: newName }) 
+            });
+            if (res.ok) {
+                document.getElementById('displayUserName').innerText = newName;
+                const modalEl = document.getElementById('settingsModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+                document.getElementById('newNameInput').value = '';
+            } else alert("Lỗi! Không thể đổi tên lúc này.");
+        }
+
+        // Tạo To-do List
+        function addCheckbox() {
+            const editor = document.getElementById('noteContent');
+            if (editor.innerHTML === '<br>' || editor.innerHTML.trim() === '') editor.innerHTML = '';
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task-item';
+            taskDiv.innerHTML = `<input type="checkbox"><span contenteditable="true"> Việc cần làm...</span>`;
+            editor.appendChild(taskDiv);
+            taskDiv.querySelector('span').focus();
+            document.execCommand('selectAll', false, null);
+        }
+
+        async function loadNotes() {
+            const res = await fetch('/api/notes');
+            cloudNotes = await res.json();
+            localNotes = JSON.parse(localStorage.getItem('localNotesArray')) || [];
+            renderSidebar();
+        }
+
+        function renderSidebar() {
+            const lList = document.getElementById('localNoteList');
+            const cList = document.getElementById('cloudTreeList');
+            lList.innerHTML = ''; cList.innerHTML = '';
+
+            localNotes.forEach(note => {
+                lList.innerHTML += `<div class="note-item ${currentNoteId === note.id ? 'active' : ''}" onclick="openNote('${note.id}', 'local')"><div class="note-title"><span style="margin-left:24px;">${note.title || 'Nháp trống'}</span></div></div>`;
+            });
+            buildTree(null, cList);
+        }
+
+        function buildTree(parentId, container) {
+            const children = parentId ? cloudNotes.filter(n => n.parentId === parentId) : cloudNotes.filter(n => !n.parentId);
+            children.forEach(note => {
+                const hasChildren = cloudNotes.some(n => n.parentId === note._id);
+                const group = document.createElement('div');
+                const toggleIcon = hasChildren ? `<span class="toggle-btn" onclick="toggleFolder(event, '${note._id}')">▼</span>` : `<span class="toggle-btn"></span>`;
+
+                const div = document.createElement('div');
+                div.className = `note-item ${currentNoteId === note._id ? 'active' : ''}`;
+                div.innerHTML = `
+                    <div class="note-title">
+                        ${toggleIcon}
+                        <span style="flex:1" onclick="openNote('${note._id}', 'cloud')">${note.title || 'Trống'}</span>
+                        <button class="btn-more" onclick="showMoveMenu(event, '${note._id}')" title="Di chuyển">⋮</button>
+                    </div>`;
+                group.appendChild(div);
+
+                if (hasChildren) {
+                    const childContainer = document.createElement('div');
+                    childContainer.id = 'children-of-' + note._id;
+                    childContainer.className = 'child-note';
+                    buildTree(note._id, childContainer); 
+                    group.appendChild(childContainer);
+                }
+                container.appendChild(group);
+            });
+        }
+
+        function toggleFolder(event, noteId) {
+            event.stopPropagation();
+            const childContainer = document.getElementById('children-of-' + noteId);
+            const btn = event.target;
+            if (childContainer.style.display === 'none') {
+                childContainer.style.display = 'block'; btn.innerText = '▼';
+            } else {
+                childContainer.style.display = 'none'; btn.innerText = '▶';
+            }
+        }
+
+        function openNewNote() {
+            currentNoteId = null; currentNoteType = null;
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteContent').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('editorArea').style.display = 'flex';
+            document.getElementById('btnSaveLocal').style.display = 'inline-block';
+            renderSidebar();
+        }
+
+        function openNote(id, type) {
+            currentNoteId = id; currentNoteType = type;
+            let note = type === 'cloud' ? cloudNotes.find(n => n._id === id) : localNotes.find(n => n.id === id);
+            if(note) {
+                document.getElementById('noteTitle').value = note.title;
+                document.getElementById('noteContent').innerHTML = note.content || ''; 
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('editorArea').style.display = 'flex';
+                document.getElementById('btnSaveLocal').style.display = type === 'cloud' ? 'none' : 'inline-block';
+                renderSidebar();
+            }
+        }
+
+        function saveLocal() {
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('noteContent').innerHTML;
+            if (currentNoteType === 'cloud') return alert("Đã lên Cloud, không thể lùi về nháp!");
+            if (!currentNoteId || currentNoteType !== 'local') {
+                const newId = 'local_' + Date.now();
+                localNotes.unshift({ id: newId, title, content });
+                currentNoteId = newId; currentNoteType = 'local';
+            } else {
+                const idx = localNotes.findIndex(n => n.id === currentNoteId);
+                if(idx !== -1) { localNotes[idx].title = title; localNotes[idx].content = content; }
+            }
+            localStorage.setItem('localNotesArray', JSON.stringify(localNotes));
+            renderSidebar();
+        }
+
+        async function saveCloud() {
+            const btn = document.getElementById('btnSaveCloud');
+            btn.innerHTML = '⏳ Đang lưu...'; 
+            
+            const title = document.getElementById('noteTitle').value;
+            const content = document.getElementById('noteContent').innerHTML;
+            let cloudId = currentNoteType === 'cloud' ? currentNoteId : null;
+
+            const res = await fetch('/api/notes', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: cloudId, title, content })
+            });
+            const savedNote = await res.json();
+
+            if (currentNoteType === 'local') {
+                localNotes = localNotes.filter(n => n.id !== currentNoteId);
+                localStorage.setItem('localNotesArray', JSON.stringify(localNotes));
+            }
+            currentNoteId = savedNote._id; currentNoteType = 'cloud';
+            document.getElementById('btnSaveLocal').style.display = 'none';
+            await loadNotes();
+            
+            btn.innerHTML = '☁️ Đã lưu Cloud!';
+            setTimeout(() => { btn.innerHTML = '☁️ Lưu Cloud'; }, 2000);
+        }
+
+        function showMoveMenu(event, id) {
+            event.stopPropagation(); noteToMove = id;
+            const select = document.getElementById('parentSelect');
+            select.innerHTML = '<option value="">-- Chọn ghi chú cha --</option>';
+            cloudNotes.filter(n => n._id !== id).forEach(n => {
+                select.innerHTML += `<option value="${n._id}">${n.title}</option>`;
+            });
+            moveModal.show();
+        }
+
+        async function confirmMove() { await moveToParent(document.getElementById('parentSelect').value); }
+
+        async function moveToParent(parentId) {
+            await fetch('/api/notes/move', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ noteId: noteToMove, parentId: parentId })
+            });
+            moveModal.hide(); loadNotes();
+        }
+
+        async function deleteNote() {
+            if(!currentNoteId || !confirm('Xóa ghi chú này?')) return;
+            if (currentNoteType === 'cloud') {
+                await fetch('/api/notes/' + currentNoteId, { method: 'DELETE' });
+            } else {
+                localNotes = localNotes.filter(n => n.id !== currentNoteId);
+                localStorage.setItem('localNotesArray', JSON.stringify(localNotes));
+            }
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('editorArea').style.display = 'none';
+            currentNoteId = null; currentNoteType = null;
+            loadNotes();
+        }
+
+        loadNotes();
+    </script>
+</body>
+</html>
