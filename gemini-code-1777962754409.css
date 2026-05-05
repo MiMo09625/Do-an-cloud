@@ -1,0 +1,24 @@
+:root {
+    --bg: #f4f7f6; --card: #ffffff; --text: #333; --border: #ddd;
+}
+/* TÍNH NĂNG 2: DARK MODE VARIABLES */
+[data-theme='dark'] {
+    --bg: #1a1a1a; --card: #2d2d2d; --text: #f0f0f0; --border: #444;
+}
+
+body { background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; transition: 0.3s; }
+.app-card { background: var(--card); width: 420px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+.settings-icon { font-size: 35px; color: #2ecc71; cursor: pointer; transition: 0.3s; }
+.settings-icon:hover { transform: rotate(90deg); }
+
+.dark-mode-toggle { font-size: 24px; cursor: pointer; margin-right: 15px; color: #f1c40f; }
+
+.search-box { background: var(--bg); padding: 8px; border-radius: 8px; display: flex; align-items: center; margin: 15px 0; }
+.search-box input { background: transparent; border: none; color: var(--text); outline: none; margin-left: 10px; width: 100%; }
+
+.input-group { display: flex; gap: 8px; margin-bottom: 20px; }
+#colorPicker { width: 40px; height: 40px; border: none; cursor: pointer; background: transparent; }
+
+li { display: flex; align-items: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border); transition: 0.2s; }
+.completed span { text-decoration: line-through; opacity: 0.6; }
