@@ -3,45 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghi chú Cloud của Duy</title>
+    <title>Ghi chú Cloud RGB Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-card">
-        <header>
-            <div class="user-info">
-                <span id="userNameDisplay">Lý Diệu Cơ</span>
-                <i class="fas fa-moon" id="themeToggle" onclick="toggleDarkMode()" title="Đổi giao diện"></i>
+    <!-- Viền RGB bọc ngoài -->
+    <div class="rgb-wrapper">
+        <div class="app-card">
+            <header>
+                <div class="user-info">
+                    <span id="userNameDisplay">Lý Diệu Cơ</span>
+                    <i class="fas fa-moon" id="themeToggle" onclick="toggleDarkMode()" title="Đổi giao diện"></i>
+                </div>
+                
+                <div class="header-actions">
+                    <!-- Icon Thùng rác -->
+                    <i class="fas fa-trash-alt icon-btn" onclick="openTrash()" title="Mở thùng rác"></i>
+                    
+                    <!-- Bánh răng Cài đặt & Đăng xuất -->
+                    <div class="settings-container">
+                        <i class="fas fa-cog icon-btn settings-icon" onclick="toggleSettings()" title="Cài đặt"></i>
+                        <div id="settingsMenu" class="settings-menu hidden">
+                            <input type="text" id="nameInput" placeholder="Nhập tên mới...">
+                            <button onclick="changeName()">Đổi tên</button>
+                            <hr>
+                            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <h1>Ghi chú Cloud</h1>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Tìm ghi chú..." onkeyup="searchNotes()">
             </div>
-            <i class="fas fa-cog settings-icon"></i>
-        </header>
 
-        <h1>Ghi chú Cloud</h1>
+            <div class="input-group">
+                <input type="text" id="todoInput" placeholder="Nhập nội dung ghi chú...">
+                <input type="color" id="colorPicker" value="#ffffff" title="Chọn màu cho ghi chú">
+                <button onclick="addTodo()">Thêm</button>
+            </div>
 
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Tìm ghi chú..." onkeyup="searchNotes()">
+            <!-- Các nút tính năng mở rộng -->
+            <div class="action-buttons">
+                <button class="btn-draft" onclick="saveDraft()"><i class="fas fa-save"></i> Lưu nháp</button>
+                <button class="btn-cloud" onclick="syncCloud()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+            </div>
+
+            <!-- Danh sách ghi chú -->
+            <ul id="todoList"></ul>
+
+            <p id="syncStatus">Đồng bộ tự động mỗi 10 giây...</p>
         </div>
-
-        <div class="input-group">
-            <input type="text" id="todoInput" placeholder="Nhập nội dung ghi chú...">
-            <input type="color" id="colorPicker" value="#ffffff" title="Chọn màu cho ghi chú">
-            <button onclick="addTodo()">Thêm</button>
-        </div>
-
-        <!-- Các nút tính năng mở rộng -->
-        <div class="action-buttons">
-            <button class="btn-draft" onclick="saveDraft()"><i class="fas fa-save"></i> Lưu nháp</button>
-            <button class="btn-cloud" onclick="syncCloud()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
-            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
-        </div>
-
-        <!-- Danh sách ghi chú -->
-        <ul id="todoList"></ul>
-
-        <p id="syncStatus">Đồng bộ tự động mỗi 10 giây...</p>
     </div>
+
+    <!-- Bảng thông báo góc phải (Toast) -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Bảng Thùng Rác (Modal) -->
+    <div id="trashModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeTrash()">&times;</span>
+            <h2><i class="fas fa-dumpster"></i> Thùng rác của bạn</h2>
+            <ul id="trashList"></ul>
+            <button class="btn-danger-full" onclick="clearTrash()">Xóa vĩnh viễn tất cả</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
