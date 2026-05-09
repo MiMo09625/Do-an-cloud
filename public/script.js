@@ -1,31 +1,101 @@
-// 1. CHUYỂN ĐỔI GIAO DIỆN SÁNG / TỐI
+let currentNotes = []; // Lưu trữ mảng ghi chú tạm thời
+
+// 1. CHUYỂN ĐỔI GIAO DIỆN & TÊN NGƯỜI DÙNG
 function toggleDarkMode() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
     localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
-// Giữ nguyên giao diện người dùng đã chọn khi F5 lại web
-if (localStorage.getItem('theme') === 'light') {
-    document.body.setAttribute('data-theme', 'light');
-} else {
-    document.body.setAttribute('data-theme', 'dark'); // Mặc định là Dark Mode như ý Duy
+function loadUserName() {
+    const savedName = localStorage.getItem('userName') || "Lý Diệu Cơ";
+    document.getElementById('userNameDisplay').innerText = savedName;
 }
 
-// 2. TẢI DỮ LIỆU TỪ MONGODB LÊN GIAO DIỆN
+// 2. HỆ THỐNG THÔNG BÁO TOAST XỊN XÒ
+function showToast(message, color = "var(--primary)") {
+    const toast = document.getElementById('toast');
+    toast.innerText = message;
+    toast.style.background = color;
+    toast.classList.add('show');
+    toast.classList.remove('hidden');
+    setTimeout(() => { 
+        toast.classList.remove('show'); 
+    }, 3000); // 3 giây tự động trượt mất
+}
+
+// 3. MENU CÀI ĐẶT (ĐỔI TÊN & ĐĂNG XUẤT)
+function toggleSettings() {
+    const menu = document.getElementById('settingsMenu');
+    menu.classList.toggle('hidden');
+}
+
+function changeName() {
+    const newName = document.getElementById('nameInput').value;
+    if(newName.trim()) {
+        localStorage.setItem('userName', newName);
+        loadUserName();
+        toggleSettings();
+        showToast("✅ Đã đổi tên thành công!");
+    }
+}
+
+function logout() {
+    if(confirm("Duy muốn đăng xuất khỏi hệ thống?")) {
+        window.location.href = '/register.html';
+    }
+}
+
+// 4. QUẢN LÝ THÙNG RÁC
+function openTrash() {
+    document.getElementById('trashModal').classList.remove('hidden');
+    renderTrash();
+}
+
+function closeTrash() {
+    document.getElementById('trashModal').classList.add('hidden');
+}
+
+function renderTrash() {
+    const trash = JSON.parse(localStorage.getItem('trashData')) || [];
+    const list = document.getElementById('trashList');
+    list.innerHTML = '';
+    if(trash.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:gray;">Thùng rác đang trống.</p>';
+        return;
+    }
+    trash.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${item.content}</span>
+            <span class="trash-time"><i class="far fa-clock"></i> Đã xóa lúc: ${item.time}</span>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function clearTrash() {
+    if(confirm("Xóa vĩnh viễn tất cả ghi chú trong thùng rác? Không thể khôi phục!")) {
+        localStorage.removeItem('trashData');
+        renderTrash();
+        showToast("🔥 Đã dọn sạch thùng rác!", "var(--danger)");
+    }
+}
+
+// 5. TẢI VÀ HIỂN THỊ DỮ LIỆU GHI CHÚ
 async function loadData() {
     try {
         const res = await fetch('/api/todos');
         const data = await res.json();
+        currentNotes = data; // Lưu lại để dùng khi xóa
         renderList(data);
         const time = new Date().toLocaleTimeString();
         document.getElementById('syncStatus').innerText = `✅ Đã đồng bộ với Cloud lúc ${time}`;
     } catch (err) {
-        document.getElementById('syncStatus').innerText = "❌ Lỗi mất kết nối Cloud!";
+        document.getElementById('syncStatus').innerText = "❌ Lỗi kết nối Cloud!";
     }
 }
 
-// 3. HIỂN THỊ DANH SÁCH GHI CHÚ
 function renderList(notes) {
     const list = document.getElementById('todoList');
     list.innerHTML = '';
@@ -39,18 +109,17 @@ function renderList(notes) {
                 <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleComplete('${note._id}', ${note.completed})">
                 <span>${note.content}</span>
             </div>
-            <button class="delete-btn" onclick="deleteItem('${note._id}')" title="Xóa ghi chú"><i class="fas fa-trash"></i></button>
+            <button class="delete-btn" onclick="deleteItem('${note._id}')" title="Đưa vào thùng rác"><i class="fas fa-trash"></i></button>
         `;
         list.appendChild(li);
     });
 }
 
-// 4. THÊM GHI CHÚ MỚI
+// 6. THÊM, SỬA, XÓA GHI CHÚ
 async function addTodo() {
     const content = document.getElementById('todoInput').value;
     const color = document.getElementById('colorPicker').value;
-    
-    if (!content) return alert('Vui lòng nhập nội dung ghi chú!');
+    if (!content) return showToast("⚠️ Vui lòng nhập nội dung!", "#ff9800");
 
     await fetch('/api/todos', {
         method: 'POST',
@@ -59,11 +128,10 @@ async function addTodo() {
     });
 
     document.getElementById('todoInput').value = '';
-    localStorage.removeItem('draftNote'); // Xóa nháp sau khi đã thêm thành công
+    localStorage.removeItem('draftNote');
     loadData();
 }
 
-// 5. CẬP NHẬT HOÀN THÀNH (Gạch bỏ chữ)
 async function toggleComplete(id, currentStatus) {
     await fetch(`/api/todos/${id}`, {
         method: 'PUT',
@@ -73,55 +141,53 @@ async function toggleComplete(id, currentStatus) {
     loadData();
 }
 
-// 6. XÓA GHI CHÚ
 async function deleteItem(id) {
-    if(confirm("Duy có chắc chắn muốn xóa ghi chú này không?")) {
+    if(confirm("Chuyển ghi chú này vào Thùng rác?")) {
+        const note = currentNotes.find(n => n._id === id); // Tìm nội dung ghi chú
+        if(note) {
+            let trash = JSON.parse(localStorage.getItem('trashData')) || [];
+            trash.push({ content: note.content, time: new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString() });
+            localStorage.setItem('trashData', JSON.stringify(trash));
+        }
         await fetch(`/api/todos/${id}`, { method: 'DELETE' });
         loadData();
+        showToast("🗑️ Đã chuyển vào thùng rác!");
     }
 }
 
-// 7. LƯU NHÁP (Lưu vào máy tính hiện tại)
+// 7. LƯU NHÁP VÀ LƯU CLOUD (Thay vì alert thì dùng Toast)
 function saveDraft() {
     const content = document.getElementById('todoInput').value;
     if(content) {
         localStorage.setItem('draftNote', content);
-        alert("✅ Đã lưu nháp! Lần sau mở web bạn sẽ thấy lại dòng này.");
+        showToast("✅ Đã lưu nháp vào bộ nhớ máy!");
     } else {
-        alert("Không có chữ nào để lưu nháp cả.");
+        showToast("⚠️ Không có chữ nào để lưu nháp!", "#ff9800");
     }
 }
 
-// 8. ĐỒNG BỘ CLOUD (Lưu thủ công)
 function syncCloud() {
     document.getElementById('syncStatus').innerText = "⏳ Đang tải dữ liệu lên Cloud...";
     loadData();
-    alert("✅ Toàn bộ dữ liệu đã được đẩy an toàn lên Cloud!");
+    showToast("☁️ Đã đẩy toàn bộ dữ liệu lên Cloud an toàn!");
 }
 
-// 9. ĐĂNG XUẤT
-function logout() {
-    if(confirm("Duy muốn đăng xuất khỏi hệ thống?")) {
-        window.location.href = '/register.html';
-    }
-}
-
-// 10. TÌM KIẾM GHI CHÚ
 function searchNotes() {
     const keyword = document.getElementById('searchInput').value.toLowerCase();
-    const items = document.querySelectorAll('li');
+    const items = document.querySelectorAll('#todoList li');
     items.forEach(item => {
         const text = item.querySelector('span').innerText.toLowerCase();
         item.style.display = text.includes(keyword) ? 'flex' : 'none';
     });
 }
 
-// Khi vừa mở web lên: tự động lấy bản nháp (nếu có) và tải ghi chú
+// KHỞI ĐỘNG: Lấy theme, tên, bản nháp và tải dữ liệu
 window.addEventListener('DOMContentLoaded', () => {
+    document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    loadUserName();
     const draft = localStorage.getItem('draftNote');
     if(draft) document.getElementById('todoInput').value = draft;
     loadData();
 });
 
-// Tự động đồng bộ ngầm mỗi 10 giây
 setInterval(loadData, 10000);
