@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8"> <!-- Đã sửa lỗi mela thành meta -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evernote Pro - 124041003_CNKTMT</title>
+    <title>Ghi chú Cloud của Duy</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,27 +11,35 @@
     <div class="app-card">
         <header>
             <div class="user-info">
-                <span id="userNameDisplay">Đang tải...</span>
-                <div class="header-actions">
-                    <i class="fas fa-moon dark-mode-toggle" onclick="toggleDarkMode()"></i>
-                    <i class="fas fa-cog settings-icon"></i>
-                </div>
+                <span id="userNameDisplay">Lý Diệu Cơ</span>
+                <i class="fas fa-moon" id="themeToggle" onclick="toggleDarkMode()" title="Đổi giao diện"></i>
             </div>
-            <h1>Ghi chú Cloud</h1>
-            <!-- TÍNH NĂNG 1: TÌM KIẾM NHANH -->
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Tìm ghi chú..." oninput="searchNotes()">
-            </div>
+            <i class="fas fa-cog settings-icon"></i>
         </header>
 
+        <h1>Ghi chú Cloud</h1>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Tìm ghi chú..." onkeyup="searchNotes()">
+        </div>
+
         <div class="input-group">
-            <input type="text" id="todoInput" placeholder="Nội dung ghi chú...">
-            <input type="color" id="colorPicker" value="#ffffff" title="Chọn màu ghi chú">
+            <input type="text" id="todoInput" placeholder="Nhập nội dung ghi chú...">
+            <input type="color" id="colorPicker" value="#ffffff" title="Chọn màu cho ghi chú">
             <button onclick="addTodo()">Thêm</button>
         </div>
 
+        <!-- Các nút tính năng mở rộng -->
+        <div class="action-buttons">
+            <button class="btn-draft" onclick="saveDraft()"><i class="fas fa-save"></i> Lưu nháp</button>
+            <button class="btn-cloud" onclick="syncCloud()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+        </div>
+
+        <!-- Danh sách ghi chú -->
         <ul id="todoList"></ul>
+
         <p id="syncStatus">Đồng bộ tự động mỗi 10 giây...</p>
     </div>
     <script src="script.js"></script>
