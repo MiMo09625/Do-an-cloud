@@ -10,13 +10,19 @@ app.use(express.static('public'));
 const mongoURI = process.env.MONGO_URI || "mongodb://localhost:27017/evernote";
 mongoose.connect(mongoURI).then(() => console.log('✅ Connected MongoDB'));
 
+// Đã thêm trường "username" để phân biệt tài khoản
 const Todo = mongoose.model('Todo', new mongoose.Schema({
     content: String,
     completed: Boolean,
-    color: String
+    color: String,
+    username: String 
 }));
 
-app.get('/api/todos', async (req, res) => res.json(await Todo.find()));
+// API giờ sẽ chỉ lấy dữ liệu theo đúng username đang đăng nhập
+app.get('/api/todos/:username', async (req, res) => {
+    res.json(await Todo.find({ username: req.params.username }));
+});
+
 app.post('/api/todos', async (req, res) => res.json(await new Todo(req.body).save()));
 app.put('/api/todos/:id', async (req, res) => res.json(await Todo.findByIdAndUpdate(req.params.id, req.body)));
 app.delete('/api/todos/:id', async (req, res) => res.json(await Todo.findByIdAndDelete(req.params.id)));
