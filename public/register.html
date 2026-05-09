@@ -31,7 +31,13 @@
         
         <div class="form-group">
             <label>Tên đăng nhập / Username</label>
-            <input type="text" id="usernameInput" placeholder="Nhập tên đăng nhập..." required>
+            <input type="text" id="usernameInput" placeholder="VD: lydieuco..." required>
+        </div>
+
+        <!-- Ô EMAIL SẼ ẨN ĐI KHI Ở CHẾ ĐỘ ĐĂNG NHẬP -->
+        <div class="form-group" id="emailGroup" style="display: none;">
+            <label>Địa chỉ Email / Gmail</label>
+            <input type="email" id="emailInput" placeholder="Nhập email của bạn...">
         </div>
 
         <div class="form-group">
@@ -58,45 +64,45 @@
     <script>
         let isLoginMode = true;
 
-        // Chuyển đổi qua lại giữa Form Đăng Nhập và Form Đăng Ký
         function toggleMode() {
             isLoginMode = !isLoginMode;
             document.getElementById('formTitle').innerText = isLoginMode ? "ĐĂNG NHẬP HỆ THỐNG" : "TẠO TÀI KHOẢN MỚI";
             document.getElementById('submitBtn').innerText = isLoginMode ? "Đăng nhập" : "Đăng ký tài khoản";
             document.getElementById('toggleBtn').innerText = isLoginMode ? "Chưa có tài khoản? Tạo tài khoản mới" : "Đã có tài khoản? Quay lại Đăng nhập";
+            
             document.getElementById('regionGroup').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('emailGroup').style.display = isLoginMode ? "none" : "block";
         }
 
-        // Gửi dữ liệu lên Server (MongoDB)
         async function submitForm() {
             const username = document.getElementById('usernameInput').value.trim();
+            const email = document.getElementById('emailInput').value.trim();
             const password = document.getElementById('passwordInput').value;
             const region = document.getElementById('regionSelect').value;
 
             if(!username || !password) return alert("⚠️ Vui lòng nhập đầy đủ tên và mật khẩu!");
+            if(!isLoginMode && !email) return alert("⚠️ Vui lòng nhập Email để đăng ký!");
 
             document.getElementById('submitBtn').innerText = "⏳ Đang xử lý...";
-
             const endpoint = isLoginMode ? '/api/login' : '/api/register';
             
             try {
                 const res = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password, region })
+                    body: JSON.stringify({ username, email, password, region })
                 });
                 
                 const data = await res.json();
                 
                 if(!res.ok) {
-                    alert("❌ " + data.message); // Thông báo lỗi từ server (sai pass, trùng tên)
+                    alert("❌ " + data.message);
                     document.getElementById('submitBtn').innerText = isLoginMode ? "Đăng nhập" : "Đăng ký tài khoản";
                 } else {
                     if(!isLoginMode) {
                         alert("✅ Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.");
-                        toggleMode(); // Trở lại form đăng nhập
+                        toggleMode(); 
                     } else {
-                        // Đăng nhập thành công -> Lưu tên và vào web
                         localStorage.setItem('userName', data.username);
                         window.location.href = '/'; 
                     }
@@ -106,7 +112,6 @@
             }
         }
 
-        // Bấm Enter để xác nhận nhanh
         document.getElementById('passwordInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') submitForm();
         });
