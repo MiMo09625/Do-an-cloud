@@ -1,15 +1,14 @@
 let currentNotes = []; 
 
-// 1. KIỂM TRA ĐĂNG NHẬP (Bảo mật)
+// KIỂM TRA ĐĂNG NHẬP (Bảo mật)
 function getUser() {
     const user = localStorage.getItem('userName');
     if(!user) {
-        window.location.href = '/register.html'; 
+        window.location.href = '/register.html'; // Trình duyệt lạ chưa đăng nhập sẽ bị đá ra ngoài
     }
     return user;
 }
 
-// 2. GIAO DIỆN & TÊN NGƯỜI DÙNG
 function toggleDarkMode() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -17,9 +16,7 @@ function toggleDarkMode() {
 }
 
 function loadUserName() {
-    // Tìm xem tài khoản này đã tự đổi tên hiển thị chưa, nếu chưa thì gán mặc định là "New Users"
-    const displayName = localStorage.getItem('displayName_' + getUser()) || "New Users";
-    document.getElementById('userNameDisplay').innerText = displayName;
+    document.getElementById('userNameDisplay').innerText = getUser();
 }
 
 function showToast(message, color = "var(--primary)") {
@@ -31,31 +28,38 @@ function showToast(message, color = "var(--primary)") {
     setTimeout(() => { toast.classList.remove('show'); }, 3000); 
 }
 
-// 3. MENU CÀI ĐẶT (NÚT BÁNH RĂNG) & ĐĂNG XUẤT
 function toggleSettings() {
     document.getElementById('settingsMenu').classList.toggle('hidden');
+    // Tìm xem tài khoản này đã tự đổi tên hiển thị chưa, nếu chưa thì gán mặc định là "New Users"
+    const displayName = localStorage.getItem('displayName_' + getUser()) || "New Users";
+    document.getElementById('userNameDisplay').innerText = displayName;
 }
 
 function changeName() {
     const newName = document.getElementById('nameInput').value;
     if(newName.trim()) {
+        localStorage.setItem('userName', newName);
         // Cập nhật tên mới riêng cho tài khoản đang dùng
         localStorage.setItem('displayName_' + getUser(), newName);
         loadUserName();
         toggleSettings();
-        showToast("✅ Đã đổi tên hiển thị thành công!");
+        loadData(); // Tải lại data của tên mới
+        showToast("✅ Đã đổi tên! Không gian làm việc mới được tạo.");
     }
 }
 
 function logout() {
-    if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
-        localStorage.removeItem('userName'); 
+    if(confirm("Duy muốn đăng xuất khỏi hệ thống?")) {
+        localStorage.removeItem('userName'); // Xóa phiên đăng nhập
         window.location.href = '/register.html';
     }
 }
 
-// 4. QUẢN LÝ THÙNG RÁC
-function openTrash() { document.getElementById('trashModal').classList.remove('hidden'); renderTrash(); }
+// QUẢN LÝ THÙNG RÁC (Đã thêm nút khôi phục)
+function openTrash() {
+    document.getElementById('trashModal').classList.remove('hidden');
+    renderTrash();
+}
 function closeTrash() { document.getElementById('trashModal').classList.add('hidden'); }
 
 function renderTrash() {
@@ -85,13 +89,14 @@ async function restoreItem(index) {
     let trash = JSON.parse(localStorage.getItem('trashData_' + getUser())) || [];
     let item = trash[index];
     
+    // Gửi lại lên Database
     await fetch('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: item.content, completed: false, color: item.color, username: getUser() })
     });
 
-    trash.splice(index, 1); 
+    trash.splice(index, 1); // Xóa khỏi mảng thùng rác
     localStorage.setItem('trashData_' + getUser(), JSON.stringify(trash));
     
     renderTrash();
@@ -107,16 +112,17 @@ function clearTrash() {
     }
 }
 
-// 5. TẢI VÀ XỬ LÝ DỮ LIỆU GHI CHÚ
+// DATA & API
 async function loadData() {
     try {
-        const res = await fetch(`/api/todos/${getUser()}`); 
+        const res = await fetch(`/api/todos/${getUser()}`); // Lấy đúng data của user hiện tại
         const data = await res.json();
         currentNotes = data; 
         renderList(data);
         document.getElementById('syncStatus').innerText = `✅ Đã đồng bộ lúc ${new Date().toLocaleTimeString()}`;
     } catch (err) {
         document.getElementById('syncStatus').innerText = "❌ Lỗi kết nối Cloud!";
+        showToast("✅ Đã đổi tên hiển thị thành công!");
     }
 }
 
@@ -178,7 +184,7 @@ async function deleteItem(id) {
     }
 }
 
-// 6. TÍNH NĂNG NHÁP & ĐỒNG BỘ CLOUD
+// TÍNH NĂNG NHÁP VÀ CLOUD
 function saveDraft() {
     const content = document.getElementById('todoInput').value;
     if(content) {
@@ -202,13 +208,9 @@ function searchNotes() {
     });
 }
 
-// 7. KHỞI ĐỘNG HỆ THỐNG
+// KHỞI ĐỘNG
 window.addEventListener('DOMContentLoaded', () => {
-    // Nếu chưa có tên người dùng thì đá về trang đăng nhập
-    if(!localStorage.getItem('userName')) {
-        window.location.href = '/register.html'; 
-        return; 
-    }
+    if(!localStorage.getItem('userName')) return; // Chặn nếu chưa đăng nhập
     document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
     loadUserName();
     const draft = localStorage.getItem('draftNote_' + getUser());
