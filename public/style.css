@@ -1,10 +1,10 @@
 /* --- 1. HỆ THỐNG BIẾN MÀU THÔNG MINH --- */
 :root {
     /* CHẾ ĐỘ SÁNG (LIGHT MODE) */
-    --bg-body: #e0e0e0;       /* Nền ngoài viền RGB */
-    --card: #ffffff;          /* Nền thẻ chính */
-    --item-bg: #f4f4f4;       /* Nền ô nhập, thanh search & ghi chú */
-    --text: #222222;          /* Chữ màu đen */
+    --bg-body: #e0e0e0;
+    --card: #ffffff;
+    --item-bg: #f4f4f4;
+    --text: #222222;
     --border: #cccccc;
     --primary: #4CAF50;
     --danger: #f44336;
@@ -17,7 +17,7 @@
     --bg-body: #0a0a0a;
     --card: #1f1f1f;
     --item-bg: #121212;
-    --text: #ffffff;          /* Chữ màu trắng */
+    --text: #ffffff;
     --border: #333333;
     --btn-add-bg: #ffffff;    /* Nền nút Thêm (Trắng) */
     --btn-add-text: #121212;  /* Chữ nút Thêm (Đen) */
@@ -52,12 +52,12 @@ body {
     100% { background-position: 0 0; }
 }
 
+/* ĐÃ KHÔI PHỤC KÍCH THƯỚC KHUNG GỐC */
 .app-card {
     background: var(--card);
     padding: 30px;
     border-radius: 15px;
-    width: 100%;
-    max-width: 500px; /* Thêm max-width để Responsive tốt hơn */
+    width: 500px; /* Khóa cứng tỷ lệ 500px y hệt bản cũ */
     box-sizing: border-box;
     transition: background-color 0.3s;
 }
