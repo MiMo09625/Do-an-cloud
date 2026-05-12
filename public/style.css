@@ -14,25 +14,15 @@ body {
     height: 100vh;
 }
 
-/* --- HIỆU ỨNG VIỀN RGB --- */
-.rgb-container {
-    background: #222222;
-    width: 500px;
-    padding: 30px 35px;
-    border-radius: 12px;
+/* --- FIX LỖI VIỀN RGB CHUẨN --- */
+.rgb-wrapper {
     position: relative;
-    z-index: 10;
-}
-
-.rgb-container::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    padding: 3px; /* Độ dày của viền RGB */
+    border-radius: 15px; /* Bo góc của viền */
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    z-index: -1;
-    border-radius: 14px;
     background-size: 400%;
     animation: glowing 20s linear infinite;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
 @keyframes glowing {
@@ -41,214 +31,89 @@ body {
     100% { background-position: 0 0; }
 }
 
-/* --- THÀNH PHẦN BÊN TRONG --- */
+.app-content {
+    background: #1a1a1a; /* Màu nền đen của app */
+    width: 500px;
+    padding: 30px 35px;
+    border-radius: 12px; /* Bo góc nhỏ hơn viền một chút */
+    z-index: 10;
+}
+
+/* --- CÁC THÀNH PHẦN GIAO DIỆN CŨ --- */
 .app-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 25px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: bold; font-size: 1.1rem; margin-bottom: 25px;
 }
 
-.header-icons i {
-    margin-left: 15px;
-    cursor: pointer;
-    color: #4CAF50;
-}
+.header-icons i { margin-left: 15px; cursor: pointer; color: #4CAF50; }
 
-.title-section {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 25px;
-}
+.title-section { position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 25px; }
+.app-title { font-size: 2.2rem; font-weight: bold; margin: 0; }
 
-.app-title {
-    font-size: 2.2rem;
-    font-weight: bold;
-    margin: 0;
-}
-
-/* --- MENU CHẾ ĐỘ XEM --- */
-.mode-dropdown-container {
-    position: absolute;
-    right: 0;
-}
-
-.btn-mode-toggle {
-    background: transparent;
-    border: 1px solid #555;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.3s;
-}
-
-.btn-mode-toggle:hover {
-    background: #333;
-    border-color: #777;
-}
-
-.mode-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 45px;
-    right: 0;
-    background: #1e1e1e;
-    border: 1px solid #444;
-    border-radius: 10px;
-    width: 170px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
-    z-index: 100;
-    overflow: hidden;
-}
-
+/* Menu Dropdown */
+.mode-dropdown-container { position: absolute; right: 0; }
+.btn-mode-toggle { background: transparent; border: 1px solid #555; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
+.btn-mode-toggle:hover { background: #333; border-color: #777; }
+.mode-dropdown-menu { display: none; position: absolute; top: 40px; right: 0; background: #222; border: 1px solid #444; border-radius: 8px; width: 160px; z-index: 100; overflow: hidden;}
 .mode-dropdown-menu.show { display: block; }
+.mode-option { padding: 12px 15px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+.mode-option:hover { background: #333; color: #4CAF50; }
 
-.mode-option {
-    padding: 12px 15px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: 0.2s;
-}
+.search-box { background: #121212; border: 1px solid #333; padding: 12px 15px; border-radius: 6px; display: flex; align-items: center; margin-bottom: 20px; }
+.search-box input { background: transparent; border: none; color: white; width: 100%; margin-left: 10px; outline: none; }
 
-.mode-option:hover {
-    background: #333;
-    color: #4CAF50;
-}
-
-.search-box {
-    background: #121212;
-    border: 1px solid #111;
-    padding: 12px 15px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.search-box input {
-    background: transparent;
-    border: none;
-    color: white;
-    width: 100%;
-    margin-left: 10px;
-    outline: none;
-    font-size: 0.95rem;
-}
-
-/* --- KHU VỰC NHẬP LIỆU & TEXTAREA --- */
+/* --- FIX LỖI NÚT THÊM & Ô NHẬP LIỆU --- */
 .input-group {
     display: flex;
     gap: 10px;
-    align-items: center; 
+    align-items: stretch; /* Ép tất cả cao bằng nhau */
+    height: 45px;
     margin-bottom: 25px;
 }
-
-.input-group textarea {
+.input-group input[type="text"] {
     flex: 1;
     background: #121212;
-    border: 1px solid #111;
+    border: 1px solid #333;
     color: white;
-    padding: 12px 15px;
+    padding: 0 15px;
     border-radius: 6px;
     outline: none;
     font-size: 0.95rem;
-    resize: none;
-    transition: all 0.3s ease-in-out;
 }
+.color-picker { width: 45px; height: 100%; border: 2px solid #4CAF50; border-radius: 6px; cursor: pointer; background: transparent; padding: 2px; }
+.btn-add { background: white; color: black; border: none; padding: 0 22px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-/* Chế độ 1 dòng */
-.mode-1-dong {
-    height: 45px;
-    white-space: nowrap;
-    overflow-x: auto;
-}
-
-/* Chế độ Trang giấy */
-.mode-trang-giay {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 70vw !important;
-    height: 70vh !important;
-    background: #fdfdfd !important;
-    color: #222 !important;
-    padding: 30px !important;
-    font-size: 1.2rem !important;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
-    z-index: 1000 !important;
-}
-
-.color-picker {
-    width: 45px;
-    height: 45px;
-    border: 2px solid #4CAF50;
-    border-radius: 6px;
-    cursor: pointer;
-    background: transparent;
-    padding: 2px;
-}
-
-.btn-add {
-    height: 45px;
-    background: white;
-    color: black;
-    border: none;
-    padding: 0 22px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-/* Nhóm nút hành động */
-.action-group {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 25px;
-}
-
-.btn-draft, .btn-cloud {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
+/* Nút hành động */
+.action-group { display: flex; gap: 12px; margin-bottom: 25px; }
+.btn-draft, .btn-cloud { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .btn-draft { background: #ff9800; color: white; }
 .btn-cloud { background: #2196F3; color: white; }
+.sync-status { text-align: center; color: #888; font-size: 0.85rem; }
 
-.sync-status {
-    text-align: center;
-    color: #888;
-    font-size: 0.85rem;
+/* --- CHẾ ĐỘ TRANG GIẤY (ĐỘC LẬP) --- */
+.page-mode-overlay {
+    display: none; /* Ẩn đi chờ gọi mới lên */
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 9999;
+    justify-content: center; align-items: center;
 }
+.page-mode-overlay.show { display: flex; }
 
-/* Lớp nền mờ khi mở Trang giấy */
-.overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 999;
-    display: none;
+.page-mode-container {
+    background: #fdfdfd;
+    width: 75vw; height: 85vh;
+    border-radius: 10px;
+    padding: 30px;
+    display: flex; flex-direction: column;
 }
-.overlay.active { display: block; }
+.page-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; color: #222; }
+.page-header h2 { font-size: 1.5rem; margin: 0; }
+.btn-close { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+.page-mode-container textarea {
+    flex: 1; width: 100%; border: none; outline: none; resize: none;
+    font-size: 1.2rem; color: #333; line-height: 1.6; background: transparent;
+}
+.page-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; height: 45px;}
+.page-actions .btn-add { background: #4CAF50; color: white; }
