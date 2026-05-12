@@ -49,7 +49,7 @@ function changeName() {
 }
 
 function logout() {
-    if(confirm("Duy muốn đăng xuất khỏi hệ thống?")) {
+    if(confirm("Bạn muốn đăng xuất khỏi hệ thống?")) {
         localStorage.removeItem('userName'); // Xóa phiên đăng nhập
         window.location.href = '/register.html';
     }
