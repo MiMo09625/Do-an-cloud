@@ -18,15 +18,28 @@
                     <i class="fas fa-moon" id="theme-icon" onclick="toggleTheme()" title="Đổi giao diện"></i>
                 </span>
                 <div class="header-icons">
-                    <i class="fas fa-trash" id="btn-clear-all" onclick="clearAllNotes()" title="Xóa tất cả"></i>
-                    <i class="fas fa-cog" id="btn-settings" onclick="openSettings()" title="Cài đặt"></i>
+                    <i class="fas fa-trash" id="btn-clear-all" onclick="showTrashModal()" title="Xóa tất cả"></i>
+                    
+                    <div class="settings-container">
+                        <i class="fas fa-cog" id="btn-settings" onclick="toggleSettings()" title="Cài đặt"></i>
+                        <div class="settings-dropdown-menu" id="settingsMenu">
+                            <div class="settings-group">
+                                <label>Tên hiển thị:</label>
+                                <input type="text" id="new-username-input" placeholder="Nhập tên mới...">
+                                <button onclick="saveNewName()">Lưu Tên</button>
+                            </div>
+                            <div class="settings-option logout-btn" onclick="logoutApp()">
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất & Xóa Data
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="title-section">
                 <h1 class="app-title">OverNote</h1>
                 <div class="mode-dropdown-container">
-                    <button class="btn-mode-toggle" onclick="toggleMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
+                    <button class="btn-mode-toggle" onclick="toggleModeMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
                     <div class="mode-dropdown-menu" id="modeMenu">
                         <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng (Ghi chú nhanh)</div>
                         <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy (Soạn thảo)</div>
@@ -41,12 +54,16 @@
 
             <div class="input-group" id="workspace-1-dong">
                 <input type="text" id="note-input-single" placeholder="Nhập nội dung ghi chú nhanh...">
-                <input type="color" class="color-picker" id="color-single" value="#4CAF50">
+                <input type="color" class="color-picker" id="color-single" value="#4CAF50" title="Chọn màu">
                 <button class="btn-add" onclick="addNote()">Thêm</button>
             </div>
 
             <div class="input-group-page" id="workspace-trang-giay" style="display: none;">
-                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết của bạn tại đây..."></textarea>
+                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết của bạn tại đây... (Có thể Enter xuống dòng)"></textarea>
+                <div class="page-actions">
+                    <input type="color" class="color-picker" id="color-page" value="#2196F3" title="Chọn màu">
+                    <button class="btn-add page-btn" onclick="addNoteFromPage()"><i class="fas fa-plus"></i> Thêm Ghi Chú Dài</button>
+                </div>
             </div>
 
             <div class="action-group">
@@ -59,12 +76,11 @@
                 Đã đồng bộ lúc <span id="sync-time">...</span>
             </div>
 
-            <div class="notes-list-container" id="notesList">
-                </div>
+            <div class="notes-list-container" id="notesList"></div>
 
         </div> 
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div class="custom-modal-overlay" id="trashModal">
+        <div class="custom-modal">
+            <h3><i class="fas fa-exclamation-triangle"
