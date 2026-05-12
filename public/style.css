@@ -1,207 +1,62 @@
-/* Reset CSS cơ bản */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverNote - Workspace</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
 
-body {
-    background-color: #121212; /* Nền Dark Mode */
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
+    <div class="rgb-container">
+        
+        <div class="app-header">
+            <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
+            <div class="header-icons">
+                <i class="fas fa-trash"></i>
+                <i class="fas fa-cog"></i>
+            </div>
+        </div>
 
-/* --- HIỆU ỨNG VIỀN RGB --- */
-.rgb-container {
-    background: #1e1e1e;
-    width: 600px;
-    padding: 30px;
-    border-radius: 15px;
-    position: relative;
-    z-index: 10;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
+        <div class="title-section">
+            <h1 class="app-title">OverNote</h1>
+            
+            <div class="mode-dropdown-container">
+                <button class="btn-mode-toggle" onclick="toggleMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
+                <div class="mode-dropdown-menu" id="modeMenu">
+                    <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng</div>
+                    <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy</div>
+                    <div class="mode-option" onclick="changeMode('tung-o')"><i class="fas fa-th-large"></i> Từng ô (Lưới)</div>
+                </div>
+            </div>
+        </div>
 
-.rgb-container::before {
-    content: '';
-    position: absolute;
-    top: -3px; left: -3px; right: -3px; bottom: -3px;
-    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    z-index: -1;
-    border-radius: 16px;
-    background-size: 400%;
-    animation: glowing 20s linear infinite;
-}
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm ghi chú...">
+        </div>
 
-@keyframes glowing {
-    0% { background-position: 0 0; }
-    50% { background-position: 400% 0; }
-    100% { background-position: 0 0; }
-}
+        <div class="input-group">
+            <textarea id="note-input" class="mode-1-dong" placeholder="Nhập nội dung ghi chú..."></textarea>
+            <input type="color" class="color-picker" value="#ffffff">
+            <button class="btn-add">Thêm</button>
+        </div>
 
-/* --- CÁC THÀNH PHẦN BÊN TRONG --- */
-.app-header {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-}
+        <div class="action-group">
+            <button class="btn-draft"><i class="fas fa-save"></i> Lưu nháp</button>
+            <button class="btn-cloud"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+        </div>
 
-.header-icons i {
-    margin-left: 15px;
-    cursor: pointer;
-    color: #4CAF50;
-}
+        <div class="sync-status">
+            <i class="fas fa-check-square" style="color: #4CAF50;"></i> 
+            Đã đồng bộ lúc <span id="sync-time">...</span>
+        </div>
 
-.app-title {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-}
+    </div>
 
-.search-box {
-    background: #121212;
-    border: 1px solid #333;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
+    <div class="overlay" id="overlay" onclick="changeMode('1-dong')"></div>
 
-.search-box input {
-    background: transparent;
-    border: none;
-    color: white;
-    width: 100%;
-    margin-left: 10px;
-    outline: none;
-}
-
-.view-modes {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.btn-mode {
-    background: #333;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: 0.3s;
-}
-
-.btn-mode:hover {
-    background: #555;
-}
-
-.input-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-/* --- CHẾ ĐỘ 1 DÒNG (MẶC ĐỊNH) --- */
-textarea.single-line {
-    flex: 1;
-    height: 45px;
-    background: #121212;
-    border: 1px solid #333;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    resize: none;
-    outline: none;
-    white-space: nowrap;
-    overflow-x: auto;
-    transition: all 0.4s ease-in-out; /* Hiệu ứng mượt mà khi đổi chế độ */
-}
-
-/* --- CHẾ ĐỘ TRANG GIẤY TO --- */
-textarea.full-page {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80vw;
-    height: 80vh;
-    background: #fdfdfd; /* Nền trắng giống tờ giấy */
-    color: #222; /* Chữ đen để dễ đọc */
-    padding: 30px;
-    font-size: 1.2rem;
-    line-height: 1.6;
-    border-radius: 10px;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    z-index: 1000;
-    resize: none;
-    outline: none;
-    transition: all 0.4s ease-in-out;
-}
-
-/* Lớp phủ làm tối màn hình khi mở trang giấy */
-.overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8);
-    z-index: 999;
-    display: none; /* Ẩn mặc định */
-}
-
-.overlay.active {
-    display: block;
-}
-
-/* --- CÁC NÚT THAO TÁC --- */
-.color-picker {
-    height: 45px;
-    width: 45px;
-    border: 2px solid #4CAF50;
-    border-radius: 8px;
-    cursor: pointer;
-    background: transparent;
-}
-
-.btn-add {
-    height: 45px;
-    padding: 0 20px;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.action-group {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.btn-draft, .btn-cloud {
-    flex: 1;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.btn-draft { background: #ff9800; color: white; }
-.btn-cloud { background: #2196F3; color: white; }
-
-.sync-status {
-    text-align: center;
-    color: #aaa;
-    font-size: 0.9rem;
-}
+    <script src="script.js"></script>
+</body>
+</html>
