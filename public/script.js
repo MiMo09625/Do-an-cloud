@@ -1,14 +1,15 @@
 let currentNotes = []; 
 
-// KIỂM TRA ĐĂNG NHẬP (Bảo mật)
+// 1. LẤY TÀI KHOẢN GỐC (Dùng để gọi API - KHÔNG BAO GIỜ ĐỔI)
 function getUser() {
     const user = localStorage.getItem('userName');
     if(!user) {
-        window.location.href = '/register.html'; // Trình duyệt lạ chưa đăng nhập sẽ bị đá ra ngoài
+        window.location.href = '/register.html'; 
     }
     return user;
 }
 
+// 2. GIAO DIỆN & TÊN NGƯỜI DÙNG
 function toggleDarkMode() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -16,7 +17,10 @@ function toggleDarkMode() {
 }
 
 function loadUserName() {
-    document.getElementById('userNameDisplay').innerText = getUser();
+    // Lấy tên hiển thị đã lưu (gắn chặt với tài khoản gốc để không bị lộn với người khác)
+    const savedDisplayName = localStorage.getItem('displayName_' + getUser());
+    // Nếu chưa đổi tên lần nào, lấy luôn tên tài khoản làm tên hiển thị
+    document.getElementById('userNameDisplay').innerText = savedDisplayName ? savedDisplayName : getUser();
 }
 
 function showToast(message, color = "var(--primary)") {
@@ -28,38 +32,36 @@ function showToast(message, color = "var(--primary)") {
     setTimeout(() => { toast.classList.remove('show'); }, 3000); 
 }
 
+// 3. MENU CÀI ĐẶT & ĐỔI TÊN (Chỉ đổi giao diện)
 function toggleSettings() {
     document.getElementById('settingsMenu').classList.toggle('hidden');
-    // Tìm xem tài khoản này đã tự đổi tên hiển thị chưa, nếu chưa thì gán mặc định là "New Users"
-    const displayName = localStorage.getItem('displayName_' + getUser()) || "New Users";
-    document.getElementById('userNameDisplay').innerText = displayName;
 }
 
 function changeName() {
-    const newName = document.getElementById('nameInput').value;
-    if(newName.trim()) {
-        localStorage.setItem('userName', newName);
-        // Cập nhật tên mới riêng cho tài khoản đang dùng
+    const newName = document.getElementById('nameInput').value.trim();
+    if(newName) {
+        // CHỈ lưu tên hiển thị, KHÔNG đụng vào tài khoản gốc
         localStorage.setItem('displayName_' + getUser(), newName);
+        
+        // Cập nhật giao diện lập tức
         loadUserName();
         toggleSettings();
-        loadData(); // Tải lại data của tên mới
-        showToast("✅ Đã đổi tên! Không gian làm việc mới được tạo.");
+        document.getElementById('nameInput').value = ''; // Xóa trắng ô nhập
+        showToast("✅ Đã đổi tên hiển thị thành công!");
+    } else {
+        showToast("⚠️ Vui lòng nhập tên mới!", "#ff9800");
     }
 }
 
 function logout() {
-    if(confirm("Bạn muốn đăng xuất khỏi hệ thống?")) {
-        localStorage.removeItem('userName'); // Xóa phiên đăng nhập
+    if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+        localStorage.removeItem('userName'); 
         window.location.href = '/register.html';
     }
 }
 
-// QUẢN LÝ THÙNG RÁC (Đã thêm nút khôi phục)
-function openTrash() {
-    document.getElementById('trashModal').classList.remove('hidden');
-    renderTrash();
-}
+// 4. QUẢN LÝ THÙNG RÁC
+function openTrash() { document.getElementById('trashModal').classList.remove('hidden'); renderTrash(); }
 function closeTrash() { document.getElementById('trashModal').classList.add('hidden'); }
 
 function renderTrash() {
@@ -89,14 +91,13 @@ async function restoreItem(index) {
     let trash = JSON.parse(localStorage.getItem('trashData_' + getUser())) || [];
     let item = trash[index];
     
-    // Gửi lại lên Database
     await fetch('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: item.content, completed: false, color: item.color, username: getUser() })
     });
 
-    trash.splice(index, 1); // Xóa khỏi mảng thùng rác
+    trash.splice(index, 1); 
     localStorage.setItem('trashData_' + getUser(), JSON.stringify(trash));
     
     renderTrash();
@@ -112,17 +113,16 @@ function clearTrash() {
     }
 }
 
-// DATA & API
+// 5. TẢI VÀ XỬ LÝ DỮ LIỆU GHI CHÚ TỪ CLOUD
 async function loadData() {
     try {
-        const res = await fetch(`/api/todos/${getUser()}`); // Lấy đúng data của user hiện tại
+        const res = await fetch(`/api/todos/${getUser()}`); 
         const data = await res.json();
         currentNotes = data; 
         renderList(data);
         document.getElementById('syncStatus').innerText = `✅ Đã đồng bộ lúc ${new Date().toLocaleTimeString()}`;
     } catch (err) {
         document.getElementById('syncStatus').innerText = "❌ Lỗi kết nối Cloud!";
-        showToast("✅ Đã đổi tên hiển thị thành công!");
     }
 }
 
@@ -153,6 +153,7 @@ async function addTodo() {
     await fetch('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Luôn gửi userName gốc lên Cloud, KHÔNG gửi Tên hiển thị
         body: JSON.stringify({ content, completed: false, color, username: getUser() })
     });
 
@@ -184,7 +185,7 @@ async function deleteItem(id) {
     }
 }
 
-// TÍNH NĂNG NHÁP VÀ CLOUD
+// 6. TÍNH NĂNG NHÁP & TÌM KIẾM
 function saveDraft() {
     const content = document.getElementById('todoInput').value;
     if(content) {
@@ -208,14 +209,21 @@ function searchNotes() {
     });
 }
 
-// KHỞI ĐỘNG
+// 7. KHỞI ĐỘNG HỆ THỐNG MƯỢT MÀ
 window.addEventListener('DOMContentLoaded', () => {
-    if(!localStorage.getItem('userName')) return; // Chặn nếu chưa đăng nhập
+    if(!localStorage.getItem('userName')) {
+        window.location.href = '/register.html'; 
+        return; 
+    }
     document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
-    loadUserName();
+    
+    loadUserName(); // Tải tên hiển thị, bao F5 không mất
+    
     const draft = localStorage.getItem('draftNote_' + getUser());
     if(draft) document.getElementById('todoInput').value = draft;
+    
     loadData();
 });
 
+// Tự động đồng bộ mỗi 10 giây
 setInterval(loadData, 10000);
