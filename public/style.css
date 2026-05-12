@@ -1,62 +1,254 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OverNote - Workspace</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    <div class="rgb-container">
-        
-        <div class="app-header">
-            <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
-            <div class="header-icons">
-                <i class="fas fa-trash"></i>
-                <i class="fas fa-cog"></i>
-            </div>
-        </div>
+body {
+    background-color: #121212;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        <div class="title-section">
-            <h1 class="app-title">OverNote</h1>
-            
-            <div class="mode-dropdown-container">
-                <button class="btn-mode-toggle" onclick="toggleMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
-                <div class="mode-dropdown-menu" id="modeMenu">
-                    <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng</div>
-                    <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy</div>
-                    <div class="mode-option" onclick="changeMode('tung-o')"><i class="fas fa-th-large"></i> Từng ô (Lưới)</div>
-                </div>
-            </div>
-        </div>
+/* --- HIỆU ỨNG VIỀN RGB --- */
+.rgb-container {
+    background: #222222;
+    width: 500px;
+    padding: 30px 35px;
+    border-radius: 12px;
+    position: relative;
+    z-index: 10;
+}
 
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Tìm ghi chú...">
-        </div>
+.rgb-container::before {
+    content: '';
+    position: absolute;
+    top: -3px; left: -3px; right: -3px; bottom: -3px;
+    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+    z-index: -1;
+    border-radius: 14px;
+    background-size: 400%;
+    animation: glowing 20s linear infinite;
+}
 
-        <div class="input-group">
-            <textarea id="note-input" class="mode-1-dong" placeholder="Nhập nội dung ghi chú..."></textarea>
-            <input type="color" class="color-picker" value="#ffffff">
-            <button class="btn-add">Thêm</button>
-        </div>
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
 
-        <div class="action-group">
-            <button class="btn-draft"><i class="fas fa-save"></i> Lưu nháp</button>
-            <button class="btn-cloud"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
-        </div>
+/* --- THÀNH PHẦN BÊN TRONG --- */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+}
 
-        <div class="sync-status">
-            <i class="fas fa-check-square" style="color: #4CAF50;"></i> 
-            Đã đồng bộ lúc <span id="sync-time">...</span>
-        </div>
+.header-icons i {
+    margin-left: 15px;
+    cursor: pointer;
+    color: #4CAF50;
+}
 
-    </div>
+.title-section {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
 
-    <div class="overlay" id="overlay" onclick="changeMode('1-dong')"></div>
+.app-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+/* --- MENU CHẾ ĐỘ XEM --- */
+.mode-dropdown-container {
+    position: absolute;
+    right: 0;
+}
+
+.btn-mode-toggle {
+    background: transparent;
+    border: 1px solid #555;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.btn-mode-toggle:hover {
+    background: #333;
+    border-color: #777;
+}
+
+.mode-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 10px;
+    width: 170px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.mode-dropdown-menu.show { display: block; }
+
+.mode-option {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: 0.2s;
+}
+
+.mode-option:hover {
+    background: #333;
+    color: #4CAF50;
+}
+
+.search-box {
+    background: #121212;
+    border: 1px solid #111;
+    padding: 12px 15px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    margin-left: 10px;
+    outline: none;
+    font-size: 0.95rem;
+}
+
+/* --- KHU VỰC NHẬP LIỆU & TEXTAREA --- */
+.input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center; 
+    margin-bottom: 25px;
+}
+
+.input-group textarea {
+    flex: 1;
+    background: #121212;
+    border: 1px solid #111;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 0.95rem;
+    resize: none;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Chế độ 1 dòng */
+.mode-1-dong {
+    height: 45px;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+/* Chế độ Trang giấy */
+.mode-trang-giay {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 70vw !important;
+    height: 70vh !important;
+    background: #fdfdfd !important;
+    color: #222 !important;
+    padding: 30px !important;
+    font-size: 1.2rem !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+    z-index: 1000 !important;
+}
+
+.color-picker {
+    width: 45px;
+    height: 45px;
+    border: 2px solid #4CAF50;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    padding: 2px;
+}
+
+.btn-add {
+    height: 45px;
+    background: white;
+    color: black;
+    border: none;
+    padding: 0 22px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* Nhóm nút hành động */
+.action-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.btn-draft, .btn-cloud {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-draft { background: #ff9800; color: white; }
+.btn-cloud { background: #2196F3; color: white; }
+
+.sync-status {
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Lớp nền mờ khi mở Trang giấy */
+.overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 999;
+    display: none;
+}
+.overlay.active { display: block; }
