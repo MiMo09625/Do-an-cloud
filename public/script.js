@@ -1,4 +1,4 @@
-// --- LOGIC CẬP NHẬT THỜI GIAN ---
+// --- CẬP NHẬT THỜI GIAN ---
 function updateSyncTime() {
     const now = new Date();
     document.getElementById('sync-time').innerText = now.toLocaleTimeString('en-US');
@@ -6,8 +6,7 @@ function updateSyncTime() {
 setInterval(updateSyncTime, 1000);
 updateSyncTime();
 
-// --- LOGIC MENU CHẾ ĐỘ XEM ---
-// 1. Mở/Đóng Menu khi bấm vào chữ "Chế độ xem +"
+// --- MENU CHẾ ĐỘ XEM ---
 function toggleMenu() {
     document.getElementById('modeMenu').classList.toggle('show');
 }
@@ -25,30 +24,27 @@ window.onclick = function(event) {
     }
 }
 
-// 2. Xử lý khi chọn chế độ
+// --- XỬ LÝ KHI CHỌN CHẾ ĐỘ ---
 function changeMode(mode) {
     const noteInput = document.getElementById('note-input');
     const overlay = document.getElementById('overlay');
 
-    // Xóa tất cả các class chế độ cũ
+    // Reset class
     noteInput.className = '';
 
     if (mode === '1-dong') {
         noteInput.classList.add('mode-1-dong');
         overlay.classList.remove('active');
         noteInput.placeholder = "Nhập nội dung ghi chú...";
-        console.log("Đã chuyển về 1 Dòng");
     } 
     else if (mode === 'trang-giay') {
         noteInput.classList.add('mode-trang-giay');
         overlay.classList.add('active');
         noteInput.placeholder = "Soạn thảo tài liệu chi tiết của bạn tại đây...";
-        console.log("Đã chuyển sang Trang giấy");
     }
     else if (mode === 'tung-o') {
         noteInput.classList.add('mode-1-dong');
         overlay.classList.remove('active');
-        alert("Tính năng hiển thị lưới (Từng ô) cho danh sách ghi chú đang được phát triển!");
-        console.log("Đã chọn Từng ô");
+        alert("Tính năng hiển thị lưới (Từng ô) đang được phát triển!");
     }
 }
