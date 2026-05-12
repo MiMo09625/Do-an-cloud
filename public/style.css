@@ -1,83 +1,162 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-body { background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; transition: 0.3s;}
+:root {
+    --bg: #121212;
+    --card: #ffffff;
+    --text: #333333;
+    --border: #dddddd;
+    --primary: #4CAF50;
+    --danger: #f44336;
+}
 
-/* VIỀN RGB CHUẨN */
+[data-theme='dark'] {
+    --bg: #0a0a0a;
+    --card: #1f1f1f;
+    --text: #ffffff;
+    --border: #333333;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: background-color 0.3s;
+}
+
+/* HIỆU ỨNG LED RGB GAMING */
 .rgb-wrapper {
-    position: relative; padding: 3px; border-radius: 15px; width: 550px;
+    position: relative;
+    padding: 4px; 
+    border-radius: 19px; 
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    background-size: 400%; animation: glowing 20s linear infinite;
+    background-size: 400%;
+    animation: glowing 10s linear infinite;
+    box-shadow: 0 0 20px rgba(0,255,255,0.2);
 }
-@keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}
 
-.app-content { background: #1a1a1a; padding: 30px; border-radius: 12px; z-index: 10; width: 100%;}
+.app-card {
+    background: var(--card);
+    padding: 30px;
+    border-radius: 15px;
+    width: 100%;
+    width: 500px;
+    box-sizing: border-box;
+}
 
-/* HEADER & SETTINGS */
-.app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-.header-icons { display: flex; align-items: center; gap: 15px; }
-.header-icons i, #theme-icon { cursor: pointer; color: #4CAF50; font-size: 1.1rem; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.user-info { display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 1.1rem; }
+.header-actions { display: flex; gap: 15px; align-items: center; }
+.icon-btn { cursor: pointer; font-size: 1.3rem; color: var(--primary); transition: 0.3s; }
+.icon-btn:hover { color: #00ffcc; text-shadow: 0 0 10px var(--primary); }
 
+/* MENU CÀI ĐẶT BÁNH RĂNG */
 .settings-container { position: relative; }
-.settings-dropdown-menu {
-    display: none; position: absolute; top: 30px; right: 0; background: #222; 
-    border: 1px solid #444; border-radius: 8px; width: 220px; z-index: 100; padding: 10px;
+.settings-menu {
+    position: absolute; right: 0; top: 30px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 15px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 100; display: flex; flex-direction: column; gap: 10px; min-width: 180px;
 }
-.settings-dropdown-menu.show { display: block; }
-.settings-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 10px;}
-.settings-group input { background: #111; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; }
-.settings-group button { background: #4CAF50; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
-.logout-btn { color: #ff4444; padding: 10px; cursor: pointer; font-size: 0.9rem; }
+.settings-menu.hidden { display: none; }
+.settings-menu input { padding: 8px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.settings-menu button { padding: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: var(--primary); color: white;}
+.settings-menu hr { border: 0.5px solid var(--border); width: 100%; margin: 5px 0; }
+.btn-logout { background: var(--danger) !important; }
 
-/* TIÊU ĐỀ & MENU XEM */
-.title-section { position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 25px; }
-.app-title { font-size: 2.2rem; font-weight: bold; }
-.mode-dropdown-container { position: absolute; right: 0; }
-.btn-mode-toggle { background: transparent; border: 1px solid #555; color: white; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
-.mode-dropdown-menu { display: none; position: absolute; top: 35px; right: 0; background: #222; border: 1px solid #444; border-radius: 8px; width: 180px; z-index: 100; }
-.mode-dropdown-menu.show { display: block; }
-.mode-option { padding: 12px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #333; }
+h1 { text-align: center; margin-bottom: 25px; }
 
-/* INPUT & TRANG GIẤY */
-.search-box { background: #121212; border: 1px solid #333; padding: 12px; border-radius: 6px; display: flex; margin-bottom: 20px; }
-.search-box input { background: transparent; border: none; color: white; width: 100%; margin-left: 10px; outline: none; }
+.search-box { position: relative; margin-bottom: 20px; }
+.search-box i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: gray; }
+.search-box input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); box-sizing: border-box; }
 
-.input-group { display: flex; gap: 10px; height: 45px; margin-bottom: 20px; }
-.input-group input[type="text"] { flex: 1; background: #121212; border: 1px solid #333; color: white; padding: 0 15px; border-radius: 6px; }
-.color-picker { width: 45px; height: 100%; border: 2px solid #4CAF50; border-radius: 6px; cursor: pointer; background: transparent; }
-.btn-add { background: white; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+.input-group input[type="text"] { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); }
+.input-group button { padding: 0 20px; background: var(--text); color: var(--bg); border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-.input-group-page textarea {
-    width: 100%; height: 180px; background: #fdfdfd; color: #111; padding: 15px;
-    border-radius: 8px; border: none; outline: none; font-size: 1rem; line-height: 1.5;
+.action-buttons { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 25px; }
+.action-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; }
+.btn-draft { background: #ff9800; }
+.btn-cloud { background: #2196F3; }
+
+ul { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; background: var(--bg); }
+li.completed span { text-decoration: line-through; opacity: 0.5; }
+.note-content { display: flex; align-items: center; gap: 10px; }
+.delete-btn { background: transparent; color: var(--danger); border: none; font-size: 1.2rem; cursor: pointer; }
+
+#syncStatus { text-align: center; font-size: 0.85rem; color: #888; margin-top: 20px; }
+
+/* HIỆU ỨNG TOAST */
+.toast {
+    position: fixed; top: 30px; right: 30px;
+    background: var(--primary); color: white;
+    padding: 15px 25px; border-radius: 8px; font-weight: bold;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    transform: translateX(200%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    z-index: 9999; display: flex; align-items: center; gap: 10px;
 }
-.page-actions { display: flex; justify-content: flex-end; gap: 10px; margin: 10px 0 20px 0; height: 40px; }
-.page-btn { background: #2196F3; color: white; }
+.toast.show { transform: translateX(0); }
 
-/* NÚT LƯU */
-.action-group { display: flex; gap: 12px; margin-bottom: 20px; }
-.btn-draft, .btn-cloud { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.btn-draft { background: #ff9800; color: white; }
-.btn-cloud { background: #2196F3; color: white; }
-.sync-status { text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 20px; }
-
-/* LIST */
-.notes-list-container { border-top: 1px solid #333; padding-top: 20px; max-height: 250px; overflow-y: auto; }
-.note-item {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    background: #121212; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 4px solid #4CAF50;
+/* BẢNG THÙNG RÁC */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
-.note-content { display: flex; align-items: flex-start; gap: 10px; flex: 1; word-break: break-word; }
-.btn-delete-note { background: transparent; border: none; color: #ff4444; cursor: pointer; font-size: 1rem; }
+.modal.hidden { display: none; }
+.modal-content {
+    background: var(--card); padding: 25px; border-radius: 15px;
+    width: 90%; max-width: 400px; position: relative; border: 2px solid var(--border);
+}
+.close-btn { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: var(--danger); }
+.btn-danger-full { width: 100%; background: var(--danger); color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; font-weight:bold; }
+#trashList li { flex-direction: column; align-items: flex-start; gap: 5px; opacity: 0.7; }
+.trash-time { font-size: 0.75rem; color: #ff9800; }
 
-/* MODAL */
-.custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-.custom-modal-overlay.show { display: flex; }
-.custom-modal { background: #222; padding: 25px; border-radius: 12px; width: 350px; text-align: center; border: 1px solid #444; }
-.modal-actions { display: flex; gap: 8px; justify-content: center; margin-top: 20px; }
-.modal-actions button { padding: 8px 12px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+/* LÀM NỔI BẬT Ô CHỌN MÀU */
+#colorPicker {
+    width: 45px; 
+    height: 45px; 
+    border: 3px solid var(--primary); /* Viền màu xanh nổi bật */
+    border-radius: 8px; 
+    cursor: pointer; 
+    background: var(--bg); 
+    padding: 2px;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Hiệu ứng phát sáng nhẹ */
+    width: 45px; height: 45px; 
+    border: 3px solid var(--primary); 
+    border-radius: 8px; cursor: pointer; 
+    background: var(--bg); padding: 2px;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
 
-/* LIGHT MODE */
-body.light-mode { background-color: #ddd; }
-body.light-mode .app-content { background: #fff; color: #111; }
-body.light-mode .search-box, body.light-mode .input-group input { background: #eee; color: #111; border-color: #ccc; }
-body.light-mode .note-item { background: #f5f5f5; color: #111; }
-body.light-mode .settings-dropdown-menu, body.light-mode .mode-dropdown-menu, body.light-mode .custom-modal { background: #fff; color: #111; border-color: #ccc; }
+/* STYLE CHO NÚT KHÔI PHỤC (UNDO) TRONG THÙNG RÁC */
+/* STYLE NÚT KHÔI PHỤC */
+.btn-restore {
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+    height: fit-content;
+    align-self: center;
+}
+.btn-restore:hover {
+    background: #0b7dda;
+    box-shadow: 0 0 10px #2196F3;
+    background: #2196F3; color: white;
+    border: none; border-radius: 8px;
+    padding: 10px 15px; cursor: pointer; font-size: 1rem;
+    transition: 0.3s; height: fit-content; align-self: center;
+}
+.btn-restore:hover { background: #0b7dda; box-shadow: 0 0 10px #2196F3; }
