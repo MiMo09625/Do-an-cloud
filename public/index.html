@@ -9,88 +9,39 @@
 </head>
 <body>
 
-    <div class="rgb-wrapper">
-        <div class="app-content">
-            
-            <div class="app-header">
-                <span class="user-name">
-                    <span id="display-name">Lý Diệu Cơ</span> 
-                    <i class="fas fa-moon" id="theme-icon" onclick="toggleTheme()" title="Đổi giao diện"></i>
-                </span>
-                <div class="header-icons">
-                    <i class="fas fa-trash" onclick="showTrashModal()" title="Xóa tất cả"></i>
-                    
-                    <div class="settings-container">
-                        <i class="fas fa-cog" id="btn-settings" onclick="toggleSettings()" title="Cài đặt"></i>
-                        <div class="settings-dropdown-menu" id="settingsMenu">
-                            <div class="settings-group">
-                                <label>Tên hiển thị:</label>
-                                <input type="text" id="new-username-input" placeholder="Nhập tên mới...">
-                                <button onclick="saveNewName()">Lưu Tên</button>
-                            </div>
-                            <div class="settings-option logout-btn" onclick="logoutApp()">
-                                <i class="fas fa-sign-out-alt"></i> Đăng xuất & Xóa Data
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="title-section">
-                <h1 class="app-title">OverNote</h1>
-                <div class="mode-dropdown-container">
-                    <button class="btn-mode-toggle" onclick="toggleModeMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
-                    <div class="mode-dropdown-menu" id="modeMenu">
-                        <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng (Ghi chú nhanh)</div>
-                        <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy (Soạn thảo)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Tìm ghi chú...">
-            </div>
-
-            <div class="input-group" id="workspace-1-dong">
-                <input type="text" id="note-input-single" placeholder="Nhập nội dung ghi chú nhanh...">
-                <input type="color" class="color-picker" id="color-single" value="#4CAF50">
-                <button class="btn-add" onclick="addNote()">Thêm</button>
-            </div>
-
-            <div class="input-group-page" id="workspace-trang-giay" style="display: none;">
-                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết..."></textarea>
-                <div class="page-actions">
-                    <input type="color" class="color-picker" id="color-page" value="#2196F3">
-                    <button class="btn-add page-btn" onclick="addNoteFromPage()"><i class="fas fa-plus"></i> Thêm Ghi Chú Dài</button>
-                </div>
-            </div>
-
-            <div class="action-group">
-                <button class="btn-draft" onclick="saveDraftLocally()"><i class="fas fa-save"></i> Lưu nháp</button>
-                <button class="btn-cloud" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
-            </div>
-
-            <div class="sync-status">
-                <i class="fas fa-check-square" style="color: #4CAF50;"></i> 
-                Đã đồng bộ lúc <span id="sync-time">...</span>
-            </div>
-
-            <div class="notes-list-container" id="notesList"></div>
-
-        </div> 
-    </div>
-
-    <div class="custom-modal-overlay" id="trashModal">
-        <div class="custom-modal">
-            <h3><i class="fas fa-exclamation-triangle" style="color: #ff9800;"></i> Cảnh báo Xóa</h3>
-            <p>Bạn có muốn tải bản sao lưu (Backup JSON) về máy trước khi xóa toàn bộ không?</p>
-            <div class="modal-actions">
-                <button class="btn-modal-cancel" onclick="closeTrashModal()">Hủy</button>
-                <button class="btn-modal-danger" onclick="executeDeleteAll()">Chỉ Xóa</button>
-                <button class="btn-modal-success" onclick="backupAndDelete()"><i class="fas fa-download"></i> Backup & Xóa</button>
+    <div class="rgb-container">
+        
+        <div class="app-header">
+            <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
+            <div class="header-icons">
+                <i class="fas fa-trash"></i>
+                <i class="fas fa-cog"></i>
             </div>
         </div>
+
+        <h1 class="app-title">OverNote</h1>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Tìm ghi chú...">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="note-input" placeholder="Nhập nội dung ghi chú...">
+            <input type="color" class="color-picker" value="#ffffff">
+            <button class="btn-add">Thêm</button>
+        </div>
+
+        <div class="action-group">
+            <button class="btn-draft"><i class="fas fa-save"></i> Lưu nháp</button>
+            <button class="btn-cloud"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+        </div>
+
+        <div class="sync-status">
+            <i class="fas fa-check-square" style="color: #4CAF50;"></i> 
+            Đã đồng bộ lúc <span id="sync-time">...</span>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
