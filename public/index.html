@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <div class="rgb-container" id="app-container">
+    <div class="rgb-container">
         
         <div class="app-header">
             <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
@@ -19,20 +19,26 @@
             </div>
         </div>
 
-        <h1 class="app-title">OverNote</h1>
+        <div class="title-section">
+            <h1 class="app-title">OverNote</h1>
+            
+            <div class="mode-dropdown-container">
+                <button class="btn-mode-toggle" onclick="toggleMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
+                <div class="mode-dropdown-menu" id="modeMenu">
+                    <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng</div>
+                    <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy</div>
+                    <div class="mode-option" onclick="changeMode('tung-o')"><i class="fas fa-th-large"></i> Từng ô (Lưới)</div>
+                </div>
+            </div>
+        </div>
 
         <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" placeholder="Tìm ghi chú...">
         </div>
 
-        <div class="view-modes">
-            <button class="btn-mode" onclick="toggleMode('single-line')"><i class="fas fa-minus"></i> 1 Dòng</button>
-            <button class="btn-mode" onclick="toggleMode('full-page')"><i class="fas fa-expand-arrows-alt"></i> Trang giấy</button>
-        </div>
-
         <div class="input-group">
-            <textarea id="note-content" class="single-line" placeholder="Nhập nội dung ghi chú..."></textarea>
+            <textarea id="note-input" class="mode-1-dong" placeholder="Nhập nội dung ghi chú..."></textarea>
             <input type="color" class="color-picker" value="#ffffff">
             <button class="btn-add">Thêm</button>
         </div>
@@ -49,7 +55,7 @@
 
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleMode('single-line')"></div>
+    <div class="overlay" id="overlay" onclick="changeMode('1-dong')"></div>
 
     <script src="script.js"></script>
 </body>
