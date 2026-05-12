@@ -10,14 +10,13 @@
 <body>
 
     <div class="rgb-wrapper">
-        
         <div class="app-content">
             
             <div class="app-header">
                 <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
                 <div class="header-icons">
-                    <i class="fas fa-trash"></i>
-                    <i class="fas fa-cog"></i>
+                    <i class="fas fa-trash" id="btn-clear-all" onclick="clearAllNotes()" title="Xóa tất cả"></i>
+                    <i class="fas fa-cog" id="btn-settings" onclick="alert('Đang mở Cài đặt Hệ thống...')" title="Cài đặt"></i>
                 </div>
             </div>
 
@@ -26,8 +25,8 @@
                 <div class="mode-dropdown-container">
                     <button class="btn-mode-toggle" onclick="toggleMenu()">Chế độ xem <i class="fas fa-plus"></i></button>
                     <div class="mode-dropdown-menu" id="modeMenu">
-                        <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng (Gốc)</div>
-                        <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy</div>
+                        <div class="mode-option" onclick="changeMode('1-dong')"><i class="fas fa-list"></i> 1 Dòng (Ghi chú nhanh)</div>
+                        <div class="mode-option" onclick="changeMode('trang-giay')"><i class="fas fa-file-alt"></i> Trang giấy (Soạn thảo)</div>
                     </div>
                 </div>
             </div>
@@ -37,15 +36,19 @@
                 <input type="text" placeholder="Tìm ghi chú...">
             </div>
 
-            <div class="input-group">
-                <input type="text" id="note-input-single" placeholder="Nhập nội dung ghi chú...">
-                <input type="color" class="color-picker" id="color-single" value="#ffffff">
-                <button class="btn-add">Thêm</button>
+            <div class="input-group" id="workspace-1-dong">
+                <input type="text" id="note-input-single" placeholder="Nhập nội dung ghi chú nhanh...">
+                <input type="color" class="color-picker" id="color-single" value="#4CAF50">
+                <button class="btn-add" onclick="addNote()">Thêm</button>
+            </div>
+
+            <div class="input-group-page" id="workspace-trang-giay" style="display: none;">
+                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết của bạn tại đây... (Có thể Enter xuống dòng)"></textarea>
             </div>
 
             <div class="action-group">
-                <button class="btn-draft"><i class="fas fa-save"></i> Lưu nháp</button>
-                <button class="btn-cloud"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+                <button class="btn-draft" onclick="saveData()"><i class="fas fa-save"></i> Lưu nháp</button>
+                <button class="btn-cloud" onclick="saveData()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
             </div>
 
             <div class="sync-status">
@@ -53,20 +56,10 @@
                 Đã đồng bộ lúc <span id="sync-time">...</span>
             </div>
 
-        </div> </div> <div class="page-mode-overlay" id="pageModeOverlay">
-        <div class="page-mode-container">
-            <div class="page-header">
-                <h2><i class="fas fa-edit"></i> Soạn thảo chi tiết</h2>
-                <button class="btn-close" onclick="changeMode('1-dong')"><i class="fas fa-times"></i> Đóng lại</button>
-            </div>
-            
-            <textarea id="note-input-page" placeholder="Bắt đầu viết ghi chú dài của bạn tại đây..."></textarea>
-            
-            <div class="page-actions">
-                <input type="color" class="color-picker" id="color-page" value="#ffffff">
-                <button class="btn-add" onclick="changeMode('1-dong')"><i class="fas fa-check"></i> Hoàn tất & Thêm</button>
-            </div>
-        </div>
+            <div class="notes-list-container" id="notesList">
+                </div>
+
+        </div> 
     </div>
 
     <script src="script.js"></script>
