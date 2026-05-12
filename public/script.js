@@ -1,36 +1,66 @@
-// --- 1. KHỞI TẠO DỮ LIỆU TỪ LOCAL STORAGE ---
+// --- 1. KHỞI TẠO DỮ LIỆU ---
 let notes = JSON.parse(localStorage.getItem('overnote_notes')) || [];
 let savedName = localStorage.getItem('overnote_user') || 'Lý Diệu Cơ';
 let isLightMode = localStorage.getItem('overnote_theme') === 'light';
 
 document.getElementById('display-name').innerText = savedName;
-
-// Khôi phục nháp của chế độ Trang giấy
+document.getElementById('new-username-input').value = savedName; // Điền sẵn tên cũ vào Cài đặt
 document.getElementById('note-input-page').value = localStorage.getItem('overnote_page_draft') || '';
 
-// Khôi phục giao diện
 if (isLightMode) {
     document.body.classList.add('light-mode');
     document.getElementById('theme-icon').className = 'fas fa-sun';
 }
 
-// Render ghi chú ngay khi mở web
 renderNotes();
+updateSyncTime();
 
-// --- 2. CÁC TÍNH NĂNG VỪA SỬA LỖI ---
-
-// Tính năng 1: Gõ tới đâu Lưu nháp tới đó cho Trang giấy
+// --- Tự động lưu nháp & Tìm kiếm ---
 document.getElementById('note-input-page').addEventListener('input', function() {
     localStorage.setItem('overnote_page_draft', this.value);
     updateSyncTime();
 });
-
-// Tính năng 2: Thanh tìm kiếm hoạt động trực tiếp (Real-time)
 document.getElementById('search-input').addEventListener('input', function() {
     renderNotes(this.value.toLowerCase());
 });
 
-// Tính năng 3: Chuyển đổi Nền Trắng / Đen
+// --- 2. XỬ LÝ MENU & CÀI ĐẶT ---
+function toggleModeMenu() {
+    document.getElementById('modeMenu').classList.toggle('show');
+    document.getElementById('settingsMenu').classList.remove('show'); // Đóng menu kia
+}
+
+function toggleSettings() {
+    document.getElementById('settingsMenu').classList.toggle('show');
+    document.getElementById('modeMenu').classList.remove('show'); // Đóng menu kia
+}
+
+// Đóng các menu nếu click ra ngoài
+window.onclick = function(event) {
+    if (!event.target.closest('.mode-dropdown-container') && !event.target.closest('.settings-container')) {
+        document.getElementById('modeMenu').classList.remove('show');
+        document.getElementById('settingsMenu').classList.remove('show');
+    }
+}
+
+// Lưu tên mới từ Menu Cài Đặt
+function saveNewName() {
+    const newName = document.getElementById('new-username-input').value.trim();
+    if(newName) {
+        localStorage.setItem('overnote_user', newName);
+        document.getElementById('display-name').innerText = newName;
+        document.getElementById('settingsMenu').classList.remove('show');
+    }
+}
+
+// Đăng xuất từ Menu Cài Đặt
+function logoutApp() {
+    if(confirm("Xóa toàn bộ bộ nhớ và đăng xuất?")) {
+        localStorage.clear();
+        location.reload(); 
+    }
+}
+
 function toggleTheme() {
     const body = document.body;
     const icon = document.getElementById('theme-icon');
@@ -45,30 +75,24 @@ function toggleTheme() {
     }
 }
 
-// Tính năng 4: Cài đặt (Đổi tên & Đăng xuất)
-function openSettings() {
-    let choice = prompt("Cài đặt tài khoản:\n1. Đổi tên hiển thị\n2. Đăng xuất\n(Nhập số 1 hoặc 2):");
-    if (choice === '1') {
-        let newName = prompt("Nhập tên mới của bạn:");
-        if (newName) {
-            localStorage.setItem('overnote_user', newName);
-            document.getElementById('display-name').innerText = newName;
-        }
-    } else if (choice === '2') {
-        if(confirm("Bạn có chắc chắn muốn đăng xuất và xóa sạch dữ liệu khỏi trình duyệt này?")) {
-            localStorage.clear();
-            location.reload(); // Tải lại trang sẽ reset mọi thứ
-        }
+function changeMode(mode) {
+    const w1Dong = document.getElementById('workspace-1-dong');
+    const wTrangGiay = document.getElementById('workspace-trang-giay');
+    if (mode === 'trang-giay') {
+        w1Dong.style.display = 'none';
+        wTrangGiay.style.display = 'block';
+    } else {
+        wTrangGiay.style.display = 'none';
+        w1Dong.style.display = 'flex';
     }
+    document.getElementById('modeMenu').classList.remove('show');
 }
 
-// --- 3. QUẢN LÝ GHI CHÚ CHÍNH ---
-
+// --- 3. QUẢN LÝ DANH SÁCH GHI CHÚ ---
 function renderNotes(filterText = '') {
     const list = document.getElementById('notesList');
     list.innerHTML = '';
     
-    // Lọc và in danh sách
     notes.filter(n => n.text.toLowerCase().includes(filterText)).forEach(note => {
         const noteHTML = `
             <div class="note-item" style="border-left-color: ${note.color};">
@@ -85,82 +109,77 @@ function renderNotes(filterText = '') {
 
 function addNote() {
     const inputField = document.getElementById('note-input-single');
-    const colorField = document.getElementById('color-single');
     const text = inputField.value.trim();
-    
-    if (text === '') return alert("Vui lòng nhập nội dung!");
+    if (text === '') return;
+    notes.push({ id: Date.now(), text: text, color: document.getElementById('color-single').value, checked: false });
+    saveNotesToLocal(); renderNotes(); inputField.value = ''; 
+}
 
-    const newNote = {
-        id: Date.now(), // Tạo ID độc nhất dựa trên thời gian
-        text: text,
-        color: colorField.value,
-        checked: false
-    };
-
-    notes.push(newNote);
-    saveNotesToLocal();
-    renderNotes();
-    inputField.value = ''; 
+function addNoteFromPage() {
+    const inputField = document.getElementById('note-input-page');
+    const text = inputField.value.trim();
+    if (text === '') return;
+    const formattedText = text.replace(/\n/g, '<br>');
+    notes.push({ id: Date.now(), text: formattedText, color: document.getElementById('color-page').value, checked: false });
+    saveNotesToLocal(); renderNotes(); 
+    inputField.value = ''; localStorage.removeItem('overnote_page_draft'); changeMode('1-dong'); 
 }
 
 function deleteNote(id) {
     notes = notes.filter(n => n.id !== id);
-    saveNotesToLocal();
-    renderNotes();
+    saveNotesToLocal(); renderNotes();
 }
-
 function toggleCheck(id) {
     const note = notes.find(n => n.id === id);
-    if (note) {
-        note.checked = !note.checked;
-        saveNotesToLocal();
-        renderNotes();
-    }
+    if (note) { note.checked = !note.checked; saveNotesToLocal(); renderNotes(); }
 }
 
-// Tính năng 5: Thùng rác tổng (Xóa tất cả)
-function clearAllNotes() {
-    if(confirm("Bạn có chắc chắn muốn xóa TẤT CẢ ghi chú?")) {
-        notes = [];
-        saveNotesToLocal();
-        renderNotes();
-    }
+// --- 4. TÍNH NĂNG THÙNG RÁC & BACKUP (MỚI) ---
+function showTrashModal() {
+    if(notes.length === 0) return alert("Không có dữ liệu để xóa!");
+    document.getElementById('trashModal').classList.add('show');
+}
+function closeTrashModal() {
+    document.getElementById('trashModal').classList.remove('show');
 }
 
+// Hàm tải file Backup .json
+function downloadBackupFile() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "OverNote_Backup_" + new Date().getTime() + ".json");
+    document.body.appendChild(downloadAnchorNode); 
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function backupAndDelete() {
+    downloadBackupFile(); // Tải file trước
+    executeDeleteAll();   // Rồi mới xóa
+}
+
+function deleteWithoutBackup() {
+    executeDeleteAll();   // Xóa luôn không tải file
+}
+
+function executeDeleteAll() {
+    notes = [];
+    saveNotesToLocal();
+    renderNotes();
+    closeTrashModal();
+}
+
+// --- 5. GIAO DIỆN KHÁC ---
 function saveNotesToLocal() {
     localStorage.setItem('overnote_notes', JSON.stringify(notes));
     updateSyncTime();
 }
-
 function saveToCloud() {
     updateSyncTime();
-    alert("Đã lưu an toàn lên Cloud & Local Storage!");
+    alert("Dữ liệu đã được lưu an toàn!");
 }
-
-// --- 4. CÁC HÀM GIAO DIỆN KHÁC ---
 function updateSyncTime() {
     document.getElementById('sync-time').innerText = new Date().toLocaleTimeString('en-US');
 }
-setInterval(updateSyncTime, 60000); // Cập nhật đồng hồ mỗi 1 phút
-
-function toggleMenu() { document.getElementById('modeMenu').classList.toggle('show'); }
-window.onclick = function(event) {
-    if (!event.target.matches('.btn-mode-toggle') && !event.target.matches('.fa-plus')) {
-        let dropdowns = document.getElementsByClassName("mode-dropdown-menu");
-        for (let i = 0; i < dropdowns.length; i++) {
-            if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-        }
-    }
-}
-
-function changeMode(mode) {
-    const w1Dong = document.getElementById('workspace-1-dong');
-    const wTrangGiay = document.getElementById('workspace-trang-giay');
-    if (mode === 'trang-giay') {
-        w1Dong.style.display = 'none';
-        wTrangGiay.style.display = 'block';
-    } else {
-        wTrangGiay.style.display = 'none';
-        w1Dong.style.display = 'flex';
-    }
-}
+setInterval(updateSyncTime, 60000);
