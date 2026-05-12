@@ -1,103 +1,219 @@
-// --- 1. KHỞI TẠO ---
-let notes = JSON.parse(localStorage.getItem('overnote_notes')) || [];
-let savedName = localStorage.getItem('overnote_user') || 'Lý Diệu Cơ';
-let isLightMode = localStorage.getItem('overnote_theme') === 'light';
+let currentNotes = []; 
 
-document.getElementById('display-name').innerText = savedName;
-document.getElementById('new-username-input').value = savedName;
-document.getElementById('note-input-page').value = localStorage.getItem('overnote_page_draft') || '';
-
-if (isLightMode) { document.body.classList.add('light-mode'); document.getElementById('theme-icon').className = 'fas fa-sun'; }
-
-renderNotes();
-updateSyncTime();
-
-// --- 2. CÀI ĐẶT & GIAO DIỆN ---
-function toggleSettings() { document.getElementById('settingsMenu').classList.toggle('show'); document.getElementById('modeMenu').classList.remove('show'); }
-function toggleModeMenu() { document.getElementById('modeMenu').classList.toggle('show'); document.getElementById('settingsMenu').classList.remove('show'); }
-
-window.onclick = (e) => { if (!e.target.closest('.settings-container') && !e.target.closest('.mode-dropdown-container')) {
-    document.getElementById('settingsMenu').classList.remove('show'); document.getElementById('modeMenu').classList.remove('show');
-}};
-
-function saveNewName() {
-    const val = document.getElementById('new-username-input').value.trim();
-    if(val) { localStorage.setItem('overnote_user', val); document.getElementById('display-name').innerText = val; toggleSettings(); }
+// 1. KIỂM TRA ĐĂNG NHẬP (Bảo mật)
+function getUser() {
+    const user = localStorage.getItem('userName');
+    if(!user) {
+        window.location.href = '/register.html'; 
+    }
+    return user;
 }
 
-function logoutApp() { if(confirm("Xóa data và đăng xuất?")) { localStorage.clear(); location.reload(); } }
-
-function toggleTheme() {
-    document.body.classList.toggle('light-mode');
-    const isLight = document.body.classList.contains('light-mode');
-    document.getElementById('theme-icon').className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-    localStorage.setItem('overnote_theme', isLight ? 'light' : 'dark');
+// 2. GIAO DIỆN & TÊN NGƯỜI DÙNG
+function toggleDarkMode() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
 }
 
-function changeMode(m) {
-    document.getElementById('workspace-1-dong').style.display = (m === '1-dong' ? 'flex' : 'none');
-    document.getElementById('workspace-trang-giay').style.display = (m === 'trang-giay' ? 'block' : 'none');
-    document.getElementById('modeMenu').classList.remove('show');
+function loadUserName() {
+    // Tìm xem tài khoản này đã tự đổi tên hiển thị chưa, nếu chưa thì gán mặc định là "New Users"
+    const displayName = localStorage.getItem('displayName_' + getUser()) || "New Users";
+    document.getElementById('userNameDisplay').innerText = displayName;
 }
 
-// --- 3. QUẢN LÝ GHI CHÚ ---
-function renderNotes(filter = '') {
-    const list = document.getElementById('notesList');
+function showToast(message, color = "var(--primary)") {
+    const toast = document.getElementById('toast');
+    toast.innerText = message;
+    toast.style.background = color;
+    toast.classList.add('show');
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.remove('show'); }, 3000); 
+}
+
+// 3. MENU CÀI ĐẶT (NÚT BÁNH RĂNG) & ĐĂNG XUẤT
+function toggleSettings() {
+    document.getElementById('settingsMenu').classList.toggle('hidden');
+}
+
+function changeName() {
+    const newName = document.getElementById('nameInput').value;
+    if(newName.trim()) {
+        // Cập nhật tên mới riêng cho tài khoản đang dùng
+        localStorage.setItem('displayName_' + getUser(), newName);
+        loadUserName();
+        toggleSettings();
+        showToast("✅ Đã đổi tên hiển thị thành công!");
+    }
+}
+
+function logout() {
+    if(confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+        localStorage.removeItem('userName'); 
+        window.location.href = '/register.html';
+    }
+}
+
+// 4. QUẢN LÝ THÙNG RÁC
+function openTrash() { document.getElementById('trashModal').classList.remove('hidden'); renderTrash(); }
+function closeTrash() { document.getElementById('trashModal').classList.add('hidden'); }
+
+function renderTrash() {
+    const trash = JSON.parse(localStorage.getItem('trashData_' + getUser())) || [];
+    const list = document.getElementById('trashList');
     list.innerHTML = '';
-    notes.filter(n => n.text.toLowerCase().includes(filter)).forEach(n => {
-        list.insertAdjacentHTML('afterbegin', `
-            <div class="note-item" style="border-left-color: ${n.color}">
-                <div class="note-content">
-                    <input type="checkbox" ${n.checked ? 'checked' : ''} onchange="toggleCheck(${n.id})">
-                    <span style="text-decoration:${n.checked ? 'line-through' : 'none'}">${n.text}</span>
-                </div>
-                <button class="btn-delete-note" onclick="deleteNote(${n.id})"><i class="fas fa-trash"></i></button>
+    if(trash.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:gray;">Thùng rác đang trống.</p>';
+        return;
+    }
+    trash.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.innerHTML = `
+            <div style="flex:1; text-align: left;">
+                <span style="color: ${item.color || 'var(--text)'}; font-weight: bold;">${item.content}</span><br>
+                <span class="trash-time"><i class="far fa-clock"></i> Đã xóa lúc: ${item.time}</span>
             </div>
-        `);
+            <button class="btn-restore" onclick="restoreItem(${index})" title="Khôi phục"><i class="fas fa-undo"></i></button>
+        `;
+        list.appendChild(li);
     });
 }
 
-function addNote() {
-    const input = document.getElementById('note-input-single');
-    if(!input.value.trim()) return;
-    notes.push({ id: Date.now(), text: input.value.trim(), color: document.getElementById('color-single').value, checked: false });
-    saveLocal(); input.value = ''; renderNotes();
+async function restoreItem(index) {
+    let trash = JSON.parse(localStorage.getItem('trashData_' + getUser())) || [];
+    let item = trash[index];
+    
+    await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: item.content, completed: false, color: item.color, username: getUser() })
+    });
+
+    trash.splice(index, 1); 
+    localStorage.setItem('trashData_' + getUser(), JSON.stringify(trash));
+    
+    renderTrash();
+    loadData();
+    showToast("♻️ Đã khôi phục ghi chú!");
 }
 
-function addNoteFromPage() {
-    const input = document.getElementById('note-input-page');
-    if(!input.value.trim()) return;
-    notes.push({ id: Date.now(), text: input.value.trim().replace(/\n/g, '<br>'), color: document.getElementById('color-page').value, checked: false });
-    saveLocal(); input.value = ''; localStorage.removeItem('overnote_page_draft'); renderNotes(); changeMode('1-dong');
+function clearTrash() {
+    if(confirm("Xóa vĩnh viễn tất cả ghi chú trong thùng rác?")) {
+        localStorage.removeItem('trashData_' + getUser());
+        renderTrash();
+        showToast("🔥 Đã dọn sạch thùng rác!", "var(--danger)");
+    }
 }
 
-function deleteNote(id) { notes = notes.filter(n => n.id !== id); saveLocal(); renderNotes(); }
-function toggleCheck(id) { const n = notes.find(x => x.id === id); if(n) { n.checked = !n.checked; saveLocal(); renderNotes(); }}
-
-// --- 4. LƯU TRỮ & BACKUP ---
-function saveLocal() { localStorage.setItem('overnote_notes', JSON.stringify(notes)); updateSyncTime(); }
-
-function saveDraftLocally() { updateSyncTime(); alert("Đã lưu nháp vào Local Storage của Trình duyệt (Chỉ ở máy này)."); }
-function saveToCloud() { updateSyncTime(); alert("Đang kết nối API... Đã đồng bộ lên MongoDB Cloud thành công!"); }
-
-function showTrashModal() { if(notes.length) document.getElementById('trashModal').classList.add('show'); }
-function closeTrashModal() { document.getElementById('trashModal').classList.remove('show'); }
-
-function backupAndDelete() {
-    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes, null, 2));
-    const link = document.createElement('a'); link.setAttribute("href", data);
-    link.setAttribute("download", "OverNote_Backup.json"); link.click();
-    executeDeleteAll();
+// 5. TẢI VÀ XỬ LÝ DỮ LIỆU GHI CHÚ
+async function loadData() {
+    try {
+        const res = await fetch(`/api/todos/${getUser()}`); 
+        const data = await res.json();
+        currentNotes = data; 
+        renderList(data);
+        document.getElementById('syncStatus').innerText = `✅ Đã đồng bộ lúc ${new Date().toLocaleTimeString()}`;
+    } catch (err) {
+        document.getElementById('syncStatus').innerText = "❌ Lỗi kết nối Cloud!";
+    }
 }
 
-function executeDeleteAll() { notes = []; saveLocal(); renderNotes(); closeTrashModal(); }
+function renderList(notes) {
+    const list = document.getElementById('todoList');
+    list.innerHTML = '';
+    notes.forEach(note => {
+        const li = document.createElement('li');
+        if (note.completed) li.classList.add('completed');
+        li.style.borderLeft = `6px solid ${note.color || '#4CAF50'}`;
+        
+        li.innerHTML = `
+            <div class="note-content">
+                <input type="checkbox" ${note.completed ? 'checked' : ''} onchange="toggleComplete('${note._id}', ${note.completed})">
+                <span>${note.content}</span>
+            </div>
+            <button class="delete-btn" onclick="deleteItem('${note._id}')" title="Đưa vào thùng rác"><i class="fas fa-trash"></i></button>
+        `;
+        list.appendChild(li);
+    });
+}
 
-function updateSyncTime() { document.getElementById('sync-time').innerText = new Date().toLocaleTimeString('en-US'); }
+async function addTodo() {
+    const content = document.getElementById('todoInput').value;
+    const color = document.getElementById('colorPicker').value;
+    if (!content) return showToast("⚠️ Vui lòng nhập nội dung!", "#ff9800");
 
-// Lưu nháp real-time cho trang giấy
-document.getElementById('note-input-page').addEventListener('input', (e) => {
-    localStorage.setItem('overnote_page_draft', e.target.value);
+    await fetch('/api/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, completed: false, color, username: getUser() })
+    });
+
+    document.getElementById('todoInput').value = '';
+    localStorage.removeItem('draftNote_' + getUser());
+    loadData();
+}
+
+async function toggleComplete(id, currentStatus) {
+    await fetch(`/api/todos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: !currentStatus })
+    });
+    loadData();
+}
+
+async function deleteItem(id) {
+    if(confirm("Chuyển ghi chú này vào Thùng rác?")) {
+        const note = currentNotes.find(n => n._id === id); 
+        if(note) {
+            let trash = JSON.parse(localStorage.getItem('trashData_' + getUser())) || [];
+            trash.push({ content: note.content, color: note.color, time: new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString() });
+            localStorage.setItem('trashData_' + getUser(), JSON.stringify(trash));
+        }
+        await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+        loadData();
+        showToast("🗑️ Đã chuyển vào thùng rác!");
+    }
+}
+
+// 6. TÍNH NĂNG NHÁP & ĐỒNG BỘ CLOUD
+function saveDraft() {
+    const content = document.getElementById('todoInput').value;
+    if(content) {
+        localStorage.setItem('draftNote_' + getUser(), content);
+        showToast("✅ Đã lưu nháp an toàn!");
+    } else { showToast("⚠️ Không có chữ nào để lưu nháp!", "#ff9800"); }
+}
+
+function syncCloud() {
+    document.getElementById('syncStatus').innerText = "⏳ Đang tải dữ liệu lên Cloud...";
+    loadData();
+    showToast("☁️ Đã đẩy toàn bộ dữ liệu lên Cloud an toàn!");
+}
+
+function searchNotes() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    const items = document.querySelectorAll('#todoList li');
+    items.forEach(item => {
+        const text = item.querySelector('span').innerText.toLowerCase();
+        item.style.display = text.includes(keyword) ? 'flex' : 'none';
+    });
+}
+
+// 7. KHỞI ĐỘNG HỆ THỐNG
+window.addEventListener('DOMContentLoaded', () => {
+    // Nếu chưa có tên người dùng thì đá về trang đăng nhập
+    if(!localStorage.getItem('userName')) {
+        window.location.href = '/register.html'; 
+        return; 
+    }
+    document.body.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    loadUserName();
+    const draft = localStorage.getItem('draftNote_' + getUser());
+    if(draft) document.getElementById('todoInput').value = draft;
+    loadData();
 });
 
-// Tìm kiếm real-time
-document.getElementById('search-input').addEventListener('input', (e) => renderNotes(e.target.value.toLowerCase()));
+setInterval(loadData, 10000);
