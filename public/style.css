@@ -1,119 +1,62 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;}
 
-body {
-    background-color: #121212;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-/* --- FIX LỖI VIỀN RGB CHUẨN --- */
+/* Viền RGB */
 .rgb-wrapper {
-    position: relative;
-    padding: 3px; /* Độ dày của viền RGB */
-    border-radius: 15px; /* Bo góc của viền */
+    position: relative; padding: 3px; border-radius: 15px; width: 550px;
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    background-size: 400%;
-    animation: glowing 20s linear infinite;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    background-size: 400%; animation: glowing 20s linear infinite; box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
+@keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
 
-@keyframes glowing {
-    0% { background-position: 0 0; }
-    50% { background-position: 400% 0; }
-    100% { background-position: 0 0; }
-}
+.app-content { background: #1a1a1a; padding: 30px; border-radius: 12px; z-index: 10; width: 100%;}
 
-.app-content {
-    background: #1a1a1a; /* Màu nền đen của app */
-    width: 500px;
-    padding: 30px 35px;
-    border-radius: 12px; /* Bo góc nhỏ hơn viền một chút */
-    z-index: 10;
-}
-
-/* --- CÁC THÀNH PHẦN GIAO DIỆN CŨ --- */
-.app-header {
-    display: flex; justify-content: space-between; align-items: center;
-    font-weight: bold; font-size: 1.1rem; margin-bottom: 25px;
-}
-
-.header-icons i { margin-left: 15px; cursor: pointer; color: #4CAF50; }
+/* Header & Menu */
+.app-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 25px; }
+.header-icons i { margin-left: 15px; cursor: pointer; color: #4CAF50; transition: 0.2s;}
+.header-icons i:hover { color: #fff; transform: scale(1.1);}
 
 .title-section { position: relative; display: flex; justify-content: center; align-items: center; margin-bottom: 25px; }
 .app-title { font-size: 2.2rem; font-weight: bold; margin: 0; }
 
-/* Menu Dropdown */
 .mode-dropdown-container { position: absolute; right: 0; }
-.btn-mode-toggle { background: transparent; border: 1px solid #555; color: white; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
-.btn-mode-toggle:hover { background: #333; border-color: #777; }
-.mode-dropdown-menu { display: none; position: absolute; top: 40px; right: 0; background: #222; border: 1px solid #444; border-radius: 8px; width: 160px; z-index: 100; overflow: hidden;}
+.btn-mode-toggle { background: transparent; border: 1px solid #555; color: white; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85rem;}
+.mode-dropdown-menu { display: none; position: absolute; top: 40px; right: 0; background: #222; border: 1px solid #444; border-radius: 8px; width: 180px; z-index: 100; }
 .mode-dropdown-menu.show { display: block; }
-.mode-option { padding: 12px 15px; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+.mode-option { padding: 12px 15px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #333;}
 .mode-option:hover { background: #333; color: #4CAF50; }
 
 .search-box { background: #121212; border: 1px solid #333; padding: 12px 15px; border-radius: 6px; display: flex; align-items: center; margin-bottom: 20px; }
 .search-box input { background: transparent; border: none; color: white; width: 100%; margin-left: 10px; outline: none; }
 
-/* --- FIX LỖI NÚT THÊM & Ô NHẬP LIỆU --- */
-.input-group {
-    display: flex;
-    gap: 10px;
-    align-items: stretch; /* Ép tất cả cao bằng nhau */
-    height: 45px;
-    margin-bottom: 25px;
-}
-.input-group input[type="text"] {
-    flex: 1;
-    background: #121212;
-    border: 1px solid #333;
-    color: white;
-    padding: 0 15px;
-    border-radius: 6px;
-    outline: none;
-    font-size: 0.95rem;
-}
+/* CHẾ ĐỘ 1 DÒNG */
+.input-group { display: flex; gap: 10px; height: 45px; margin-bottom: 20px; }
+.input-group input[type="text"] { flex: 1; background: #121212; border: 1px solid #333; color: white; padding: 0 15px; border-radius: 6px; outline: none; }
 .color-picker { width: 45px; height: 100%; border: 2px solid #4CAF50; border-radius: 6px; cursor: pointer; background: transparent; padding: 2px; }
-.btn-add { background: white; color: black; border: none; padding: 0 22px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+.btn-add { background: white; color: black; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-/* Nút hành động */
-.action-group { display: flex; gap: 12px; margin-bottom: 25px; }
+/* CHẾ ĐỘ TRANG GIẤY (VIẾT) */
+.input-group-page { margin-bottom: 20px; }
+.input-group-page textarea {
+    width: 100%; height: 200px; background: #fdfdfd; color: #111; padding: 15px;
+    border-radius: 8px; border: none; outline: none; resize: vertical;
+    font-size: 1.1rem; line-height: 1.5; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Nút & Trạng thái */
+.action-group { display: flex; gap: 12px; margin-bottom: 20px; }
 .btn-draft, .btn-cloud { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .btn-draft { background: #ff9800; color: white; }
 .btn-cloud { background: #2196F3; color: white; }
-.sync-status { text-align: center; color: #888; font-size: 0.85rem; }
+.sync-status { text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 20px;}
 
-/* --- CHẾ ĐỘ TRANG GIẤY (ĐỘC LẬP) --- */
-.page-mode-overlay {
-    display: none; /* Ẩn đi chờ gọi mới lên */
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    justify-content: center; align-items: center;
+/* CSS CHO DANH SÁCH GHI CHÚ */
+.notes-list-container { border-top: 1px solid #333; padding-top: 20px; max-height: 250px; overflow-y: auto;}
+.note-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #121212; padding: 12px 15px; margin-bottom: 10px;
+    border-radius: 6px; border-left: 4px solid #4CAF50; /* Màu viền sẽ đổi bằng JS */
 }
-.page-mode-overlay.show { display: flex; }
-
-.page-mode-container {
-    background: #fdfdfd;
-    width: 75vw; height: 85vh;
-    border-radius: 10px;
-    padding: 30px;
-    display: flex; flex-direction: column;
-}
-.page-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; color: #222; }
-.page-header h2 { font-size: 1.5rem; margin: 0; }
-.btn-close { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
-.page-mode-container textarea {
-    flex: 1; width: 100%; border: none; outline: none; resize: none;
-    font-size: 1.2rem; color: #333; line-height: 1.6; background: transparent;
-}
-.page-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; height: 45px;}
-.page-actions .btn-add { background: #4CAF50; color: white; }
+.note-content { display: flex; align-items: center; gap: 10px; flex: 1;}
+.note-content input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; }
+.btn-delete-note { background: transparent; border: none; color: #ff4444; cursor: pointer; font-size: 1.1rem;}
