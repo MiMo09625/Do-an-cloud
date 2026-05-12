@@ -13,10 +13,13 @@
         <div class="app-content">
             
             <div class="app-header">
-                <span class="user-name">Lý Diệu Cơ <i class="fas fa-moon"></i></span>
+                <span class="user-name">
+                    <span id="display-name">Lý Diệu Cơ</span> 
+                    <i class="fas fa-moon" id="theme-icon" onclick="toggleTheme()" title="Đổi giao diện"></i>
+                </span>
                 <div class="header-icons">
                     <i class="fas fa-trash" id="btn-clear-all" onclick="clearAllNotes()" title="Xóa tất cả"></i>
-                    <i class="fas fa-cog" id="btn-settings" onclick="alert('Đang mở Cài đặt Hệ thống...')" title="Cài đặt"></i>
+                    <i class="fas fa-cog" id="btn-settings" onclick="openSettings()" title="Cài đặt"></i>
                 </div>
             </div>
 
@@ -33,7 +36,7 @@
 
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Tìm ghi chú...">
+                <input type="text" id="search-input" placeholder="Tìm ghi chú...">
             </div>
 
             <div class="input-group" id="workspace-1-dong">
@@ -43,12 +46,12 @@
             </div>
 
             <div class="input-group-page" id="workspace-trang-giay" style="display: none;">
-                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết của bạn tại đây... (Có thể Enter xuống dòng)"></textarea>
+                <textarea id="note-input-page" placeholder="Viết nội dung tài liệu chi tiết của bạn tại đây..."></textarea>
             </div>
 
             <div class="action-group">
-                <button class="btn-draft" onclick="saveData()"><i class="fas fa-save"></i> Lưu nháp</button>
-                <button class="btn-cloud" onclick="saveData()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
+                <button class="btn-draft" onclick="saveToCloud()"><i class="fas fa-save"></i> Lưu nháp</button>
+                <button class="btn-cloud" onclick="saveToCloud()"><i class="fas fa-cloud-upload-alt"></i> Lưu Cloud</button>
             </div>
 
             <div class="sync-status">
